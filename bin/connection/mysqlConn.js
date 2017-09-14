@@ -9,7 +9,8 @@ var pool = mysql.createPool({
     insecureAuth: true
 });
 pool.getConnection(function (err, connection) {
-    debugger;
+    if (err || !connection)
+        throw err;
 })
 // demo
 // pool.query('select 1 + AS solution', function (error, results, fields) {})
