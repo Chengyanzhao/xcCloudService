@@ -4,7 +4,7 @@ var path = require('path')
 var walk = function (dir, results = {}, done) {
     fs.readdir(dir, function (err, list) {
         if (err) return done(err);
-        results.name = results.name || path.dirname(dir)
+        results.name = path.basename(results.name) || path.basename(dir)
         results.child = []
         results.file = []
         var pending = list.length;

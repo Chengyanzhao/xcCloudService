@@ -2,6 +2,7 @@ var express = require('express')
 var router = express.Router()
 var pool = require('../bin/connection/mysqlConn')
 var cryptUtil = require('../bin/util/cryptUtil')
+var userService = require('../service/userService')
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -10,39 +11,16 @@ router.get('/', function (req, res, next) {
 
 // 注册
 router.post('/signUp', function (req, res, next) {
-  var userName = req.body.userName;
-  var passWord = req.body.passWord;
-  var personName = req.body.personName;
-  var sex = req.body.sex;
-  var email = req.body.email;
-  var mobilephone = req.body.mobilephone;
-  var telephone = req.body.telephone;
-  // 参数验证
-  var personId = cryptUtil.guid();
-  var orgId = '';
-  pool.pool.query(`insert into user (personId,personName,orgId,userName,passWord,sex,email,mobilephone,telephone) 
-  values("${personId}","${personName}","${orgId}","${userName}","${passWord}","${sex}","${email}","${mobilephone}","${telephone}");`, function (error, results, fields) {
-    debugger;
-    res.json({
-      result: true
-    })
-  });
+  var opts = req.body;
+  userService.signUp(opts, result => {
+    res.json(result);
+  })
 })
 // 登陆
 router.post('/signIn', function (req, res, next) {
-  var userName = req.body.userName;
-  var passWord = req.body.passWord;
-  pool.pool.query(`select * from user where username='${userName}' and password='${passWord}'`, function (error, results, fields) {
-    if (error || !results || results.length === 0) {
-      res.json({
-        status: false,
-        message: '用户名或密码错误！'
-      })
-    } else {
-      res.json({
-        status: true
-      })
-    }
+  let opts = req.body
+  userService.signIn(opts, result => {
+    res.json(result);
   })
 })
 // 修改密码
