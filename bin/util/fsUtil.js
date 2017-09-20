@@ -1,14 +1,14 @@
 var fs = require('fs')
 var path = require('path')
 
-var walk = function (dir, results = {}, done) {
+var walk = function (dir, authfolderData, done) {
     fs.readdir(dir, function (err, list) {
         if (err) return done(err);
-        results.name = path.basename(results.name) || path.basename(dir)
-        results.child = []
-        results.file = []
+        // authfolderData.name = path.basename(authfolderData.name) || path.basename(dir)
+        // authfolderData.child = []
+        // authfolderData.file = []
         var pending = list.length;
-        if (!pending) return done(null, results);
+        if (!pending) return done(null, authfolderData);
         list.forEach(function (file) {
             file = path.resolve(dir, file);
             fs.stat(file, function (err, stat) {
@@ -16,15 +16,15 @@ var walk = function (dir, results = {}, done) {
                     var childItem = {
                         name: file
                     }
-                    results.child.push(childItem)
+                    authfolderData.folder.push(childItem)
                     walk(file, childItem, function (err, res) {
-                        // results = results.concat(res);
-                        if (!--pending) done(null, results);
+                        // authfolderData = authfolderData.concat(res);
+                        if (!--pending) done(null, authfolderData);
                     });
                 } else {
-                    results.file ? results.file.push(file) : results.file = [file]
-                    // results.push(file);
-                    if (!--pending) done(null, results);
+                    authfolderData.file ? authfolderData.file.push(file) : authfolderData.file = [file]
+                    // authfolderData.push(file);
+                    if (!--pending) done(null, authfolderData);
                 }
             });
         });
