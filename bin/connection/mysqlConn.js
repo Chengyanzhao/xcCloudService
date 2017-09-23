@@ -12,8 +12,6 @@ pool.getConnection(function (err, connection) {
     if (err || !connection)
         throw err;
 })
-// demo
-// pool.query('select 1 + AS solution', function (error, results, fields) {})
 module.exports = {
     pool
 }
