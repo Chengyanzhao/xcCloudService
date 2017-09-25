@@ -16,13 +16,15 @@ var Singleton = (function () {
             var _mysqlUser = proper['mysqlUser'];
             var _mysqlPassword = proper['mysqlPassword'];
             var _mysqlDataBase = proper['mysqlDataBase'];
+            var _secret = proper['secret'];
             return {
                 baseFolder: _baseFolder,
                 dataBase: _dataBase,
                 mysqlHost: _mysqlHost,
                 mysqlUser: _mysqlUser,
                 mysqlPassword: _mysqlPassword,
-                mysqlDataBase: _mysqlDataBase
+                mysqlDataBase: _mysqlDataBase,
+                secret: _secret
             };
         }
 
