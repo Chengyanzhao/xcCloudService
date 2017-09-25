@@ -40,8 +40,13 @@ router.post('/signIn', function (req, res, next) {
     res.json(result);
   })
 })
-// 修改密码
-router.post('/changePassword', function (req, res, next) {
+/**
+ * 修改密码
+ * 
+ * @param {String} username 登录名
+ * @param {String} password 登录密码
+ */
+router.post('/updatePassword', function (req, res, next) {
 
 })
 // 个人信息
