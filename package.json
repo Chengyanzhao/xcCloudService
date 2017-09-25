@@ -11,6 +11,7 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "jade": "~1.11.0",
+    "jsonwebtoken": "^8.0.1",
     "morgan": "~1.8.1",
     "mysql": "github:mysqljs/mysql",
     "properties-parser": "^0.3.1",
