@@ -27,7 +27,13 @@ router.post('/signUp', function (req, res, next) {
     res.json(result);
   })
 })
-// 登陆
+
+/**
+ * 登录
+ * 
+ * @param {String} username 登录名
+ * @param {String} password 登录密码
+ */
 router.post('/signIn', function (req, res, next) {
   let opts = req.body
   userService.signIn(opts, result => {

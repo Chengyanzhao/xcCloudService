@@ -48,7 +48,7 @@ function signUp(opts, done) {
     })
 }
 
-function signIn(opts, callback) {
+function signIn(opts, done) {
     let result = {
         status: false
     }
@@ -56,15 +56,21 @@ function signIn(opts, callback) {
         userName,
         passWord
     } = opts
-
-    let priomise = poolQuery.query(`select * from user where username='${userName}' and password='${passWord}'`)
-    priomise.then((results, fields) => {
-        if (!results || results.length === 0) result.message = '用户名或密码错误！'
-        else result.status = true
-        callback(result)
+    let userTable = db.table('user')
+    userTable.findOne({
+        username: userName
+    }).then(data => {
+        if (!data || !data.length || data.length === 0) {
+            return Promise.reject('用户不存在！')
+        }
+        if (data[0].password !== passWord) {
+            return Promise.reject('密码错误！')
+        }
+        result.status = true
+        done(result)
     }).catch(error => {
-        result.message = '系统错误！'
-        callback(result)
+        result.message = error && typeof error === 'string' ? error : '系统错误！'
+        done(result)
     })
 }
 
