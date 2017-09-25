@@ -1,47 +1,51 @@
 /**
  * user service 
  */
+const db = require('../bin/database/db')
 const poolQuery = require('../bin/util/promise-mysql')
 var cryptUtil = require('../bin/util/cryptUtil')
 
-function signUp(opts, callback) {
+function signUp(opts, done) {
     let result = {
         status: false
     }
     let {
         userName,
         passWord,
-        personName,
+        nickName,
+        orgId,
         sex,
         email,
-        mobilephone,
-        telephone
-    } = opts;
-    // 参数验证
-    // 判断用户是否存在
-    poolQuery.query(`select * from user where userName='${userName}'`).then((results, fields) => {
-            if (results && results.length > 0) {
-                // 用户名已存在
-                result.message = '此用户名已被占用！'
-                callback(result);
-            } else {
-                var personId = cryptUtil.guid();
-                var orgId = '';
-                var promise = poolQuery.query(`insert into user (personId,personName,orgId,userName,passWord,sex,email,mobilephone,telephone) 
-                values("${personId}","${personName}","${orgId}","${userName}","${passWord}","${sex}","${email}","${mobilephone}","${telephone}");`)
-                promise.then((results, fields) => {
-                    result.status = true
-                    callback(result);
-                }).catch(insertError => {
-                    result.message = '系统错误！'
-                    callback(result);
-                })
-            }
+        mobilePhone,
+        telePhone
+    } = opts
+    let userId = cryptUtil.guid()
+    let userTable = db.table('user')
+    userTable.find({
+        username: userName
+    }).then(data => {
+        if (data && data.length && data.length > 0) {
+            return Promise.reject('此用户名已被占用！');
+        }
+    }).then((qwe) => {
+        return userTable.add({
+            userid: userId,
+            username: userName,
+            password: passWord,
+            nickname: nickName,
+            orgid: orgId,
+            sex: sex,
+            email: email,
+            mobilephone: mobilePhone,
+            telephone: telePhone
         })
-        .catch(error => {
-            result.message = '系统错误！'
-            callback(result);
-        })
+    }).then(data => {
+        result.status === true
+        done(result)
+    }).catch(error => {
+        result.message = error && typeof error === 'string' ? error : '系统错误！'
+        done(result)
+    })
 }
 
 function signIn(opts, callback) {

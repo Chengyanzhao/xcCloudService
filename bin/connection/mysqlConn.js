@@ -12,6 +12,4 @@ pool.getConnection(function (err, connection) {
     if (err || !connection)
         throw err;
 })
-module.exports = {
-    pool
-}
+module.exports = pool

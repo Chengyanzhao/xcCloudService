@@ -9,7 +9,18 @@ router.get('/', function (req, res, next) {
   res.send('respond with a resource');
 });
 
-// 注册
+/**
+ * 添加用户/注册
+ * 
+ * @param {String} username 登录名
+ * @param {String} password 登录密码
+ * @param {String} nickname 昵称
+ * @param {String} orgid {default:Null} 所属组织id
+ * @param {String} sex 性别
+ * @param {String} email 邮箱
+ * @param {String} mobilephone 手机
+ * @param {String} telephone 电话
+ */
 router.post('/signUp', function (req, res, next) {
   var opts = req.body;
   userService.signUp(opts, result => {

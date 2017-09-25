@@ -1,4 +1,4 @@
-const DATABASE_ENV = config.Config.getInstance().dataBase // mysql/access
+// const DATABASE_ENV = config.Config.getInstance().dataBase // mysql/access
 
 // const pool = DATABASE_ENV === 'mysql' ? a : b
 const pool = require('../connection/mysqlConn')

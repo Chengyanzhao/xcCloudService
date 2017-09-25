@@ -6,20 +6,23 @@ function Table(tableName) {
         throw new Error('error table name.')
     else this.tableName = tableName
 }
-const proto = table.prototype
+const proto = Table.prototype
 
 proto.add = function (data) {
-    let where = query ? 'WHERE' : ''
-    if (query) {
-        for (let key in query) {
-            let value = query[key]
-            let condition = ` ${key}='${value}'`
-            where += condition
+    let insert = data ? 'SET' : ''
+    if (data) {
+        for (let key in data) {
+            let value = data[key]
+            if (value) {
+                let set = ` ${key}='${value}',`
+                insert += set
+            }
         }
+        if (insert.lastIndexOf(',') === insert.length - 1) insert = insert.substr(0, insert.length - 1)
     }
 
-    let sqlStr = `SELECT * FROM ${this.tableName} ${where}`;
-    return dbBase.execute(sqlStr);
+    let sqlStr = `INSERT INTO ${this.tableName} ${insert}`
+    return dbBase.execute(sqlStr)
 }
 
 proto.find = function (query) {
@@ -92,3 +95,5 @@ proto.query = function () {
     let sqlStr = '';
     return dbBase.execute(sqlStr);
 }
+
+module.exports = Table
