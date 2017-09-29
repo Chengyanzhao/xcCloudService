@@ -1,9 +1,12 @@
-var crypto = require('crypto');
-var jwt = require('jsonwebtoken')
-var ObjectId = require('./objectId');
+const crypto = require('crypto')
+const jwt = require('jsonwebtoken')
+const ObjectId = require('./objectId')
+const config = require('../util/configUtil')
+
+const secret = config.Config.getInstance().secret
 
 function guid() {
-    return new ObjectId(new Date()).toString();
+    return new ObjectId(new Date()).toString()
 }
 /**
  * 解译jwt token
@@ -30,20 +33,20 @@ function verifyToken(token, privateKey) {
 /**
  * 生成token
  * 
- * @param {any} data 
- * @param {any} privateKey 
+ * @param {String} userId 
  * @returns 
  */
-function encodeToken(userId, privateKey) {
+function encodeToken(userId) {
     return jwt.sign({
         userId
-    }, privateKey, {
+    }, secret, {
         algorithm: 'HS256',
         expiresIn: 30 * 60
-    });
+    })
 }
 
 module.exports = {
     guid,
-    verifyToken
-};
+    verifyToken,
+    encodeToken
+}
