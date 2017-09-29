@@ -27,6 +27,21 @@ function verifyToken(token, privateKey) {
         })
     })
 }
+/**
+ * 生成token
+ * 
+ * @param {any} data 
+ * @param {any} privateKey 
+ * @returns 
+ */
+function encodeToken(userId, privateKey) {
+    return jwt.sign({
+        userId
+    }, privateKey, {
+        algorithm: 'HS256',
+        expiresIn: 30 * 60
+    });
+}
 
 module.exports = {
     guid,
