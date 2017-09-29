@@ -67,6 +67,9 @@ function signIn(opts, done) {
             return Promise.reject('密码错误！')
         }
         result.status = true
+        let userId = data.userId
+        let token = cryptUtil.encodeToken(userId)
+        result.token = token
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
