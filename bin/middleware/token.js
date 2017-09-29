@@ -1,50 +1,32 @@
-var path = require('path')
-var crypt = require('../utils/cryptUtil')
-var config = require('../util/configUtil')
+const path = require('path')
+const crypt = require('../utils/cryptUtil')
+const config = require('../util/configUtil')
 
 const secret = config.Config.getInstance().secret
 
-function tokenVerify(req, res, next) {
+function token(req, res, next) {
     let token
     let authorization = req.headers.authorization
-    if (authorization && authorization.startsWith('token'))
-        token = authorization.substr(5)
+    if (authorization && authorization.startsWith('Bearer '))
+        token = authorization.substr(7)
     if (!token) {
-        res.redirect('/login');
-        return
-    }
-    crypt.verifyToken(token, secret)
-        .then(result => {
+        res.redirect('/login')
+    } else {
+        crypt.verifyToken(token, secret).then(result => {
             if (result.status !== 'success' || !result.decoded) {
-                res.redirect('/login');
+                res.redirect('/login')
                 return
             }
             let decoded = result.decoded
             let now = new Date().getTime()
-            if (now < decoded.exp * 1000) {
-                // 查库对比token是否匹配
-                dbModel.userModel.findOne({
-                    username: decoded.data.username
-                }, (err, data) => {
-                    if (err || !data || !data.token) {
-                        res.sendFile(mobilIndex);
-                        return
-                    } else {
-                        if (data.token === token) {
-                            next()
-                        } else {
-                            res.sendFile(mobilIndex);
-                            return
-                        }
-                    }
-                })
+            let timeOut = now < decoded.exp * 1000
+            if (timeOut) {
+                res.redirect('/login')
             } else {
-                res.sendFile(mobilIndex);
-                return
+                req.userId = decoded.userId
+                next()
             }
         })
+    }
 }
-
-module.exports = {
-    tokenVerify
-}
+module.exports = token
