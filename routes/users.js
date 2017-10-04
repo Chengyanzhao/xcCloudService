@@ -47,23 +47,17 @@ router.post('/signIn', function (req, res, next) {
  * @param {String} password 登录密码
  */
 router.post('/updatePassword', function (req, res, next) {
-
+  let userId = req.userId
+  let opts = req.body
+  userService.updatePassword(userId, opts, result => {
+    res.json(result)
+  })
 })
 // 个人信息
 router.get('/userInfo', function (req, res, next) {
-  let userName = req.query.userName;
-  pool.pool.query(`select * from user where username='${userName}'`, function (error, results, fields) {
-    if (error) {
-      res.json({
-        status: false,
-        message: '系统错误'
-      })
-    } else {
-      res.json({
-        status: true,
-        data: results[0]
-      })
-    }
-  });
+  let userId = req.userId
+  userService.userInfo(userId, result => {
+    res.json(result)
+  })
 })
 module.exports = router;

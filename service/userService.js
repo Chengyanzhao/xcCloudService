@@ -27,7 +27,7 @@ function signUp(opts, done) {
         if (data && data.length && data.length > 0) {
             return Promise.reject('此用户名已被占用！');
         }
-    }).then((qwe) => {
+    }).then(() => {
         return userTable.add({
             userid: userId,
             username: userName,
@@ -77,7 +77,42 @@ function signIn(opts, done) {
     })
 }
 
+function userInfo(opts, done) {
+    let result = {
+        status: false
+    }
+    let {
+        userId
+    } = opts
+    let userTable = db.table('user')
+    userTable.findOne({
+        userId
+    }).then(data => {
+        result.status = true
+        result.data = data
+        done(data)
+    }).catch(err => {
+        result.message = '系统错误！'
+        done(result)
+    })
+}
+function updatePassword(userId,opts,done){
+    let result = {
+        status: false
+    }
+    let {newPwd} = opts
+    let userTable = db.table('user')
+    userTable.update({userId},{password:newPwd}).then(result=>{
+        result.status=true
+        done(result)
+    }).catch(err=>{
+        result.message='系统错误！'
+        done(result)
+    })
+}
 module.exports = {
     signUp,
-    signIn
+    signIn,
+    userInfo,
+    updatePassword
 }

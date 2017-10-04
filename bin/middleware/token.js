@@ -1,5 +1,5 @@
 const path = require('path')
-const crypt = require('../utils/cryptUtil')
+const crypt = require('../util/cryptUtil')
 const config = require('../util/configUtil')
 
 const secret = config.Config.getInstance().secret
@@ -24,6 +24,7 @@ function token(req, res, next) {
                 res.redirect('/login')
             } else {
                 req.userId = decoded.userId
+                res.authorization=crype.encodeToken
                 next()
             }
         })

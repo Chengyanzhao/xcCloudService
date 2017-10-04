@@ -30,7 +30,59 @@ var walk = function (dir, authfolderData, done) {
         });
     });
 };
+// 创建多层文件夹
+function mkdirSync(dirpath, mode) {
+    if (!fs.existsSync(dirpath)) {
+        var pathtmp;
+        dirpath.split(path.sep).forEach(function (dirname) {
+            if (pathtmp) {
+                pathtmp = path.join(pathtmp, dirname);
+            } else {
+                pathtmp = dirname;
+            }
+            if (!fs.existsSync(pathtmp)) {
+                if (!fs.mkdirSync(pathtmp, mode)) {
+                    return false;
+                }
+            }
+        });
+    }
+    return true;
+}
+// 删除文件夹
+function deleteFolder(dirPath) {
+    var files = [];
+    if (fs.existsSync(dirPath)) {
+        files = fs.readdirSync(dirPath);
+        files.forEach(function (file, index) {
+            var curPath = path.resolve(dirPath, file);
+            if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                deleteFolder(curPath);
+            } else { // delete file
+                fs.unlinkSync(curPath);
+            }
+        });
+        fs.rmdirSync(dirPath);
+    }
+}
+
+// 清空文件夹内文件
+function clearFolder(dirPath) {
+    var files = [];
+    if (fs.existsSync(dirPath)) {
+        files = fs.readdirSync(dirPath);
+        files.forEach(function (file, index) {
+            var curPath = path.resolve(dirPath, file);
+            if (!fs.lstatSync(curPath).isDirectory()) { // recurse
+                fs.unlinkSync(curPath);
+            }
+        });
+    }
+}
 
 module.exports = {
-    walk
+    walk,
+    mkdirSync,
+    deleteFolder,
+    clearFolder
 }

@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const db = require('../bin/database/db')
+const authService = require('../service/authService')
 
 
 function checkLogin(req, res, next) {
@@ -13,58 +14,24 @@ router.get('/folderAuth', (req, res, next) => {
   let result = {
     status: false
   }
-  let folder = req.body.folder
-  let authTable = db.table('auth')
-  // 目录授权信息
-  authTable.findOne({
-    folder: folder
-  }).then(results => {
-    if (results && results.length) {
-      result.data = results
-      result.status = true
-      res.json(result)
-    }
-  }).catch(error => {
-    result.message = '系统错误！'
+  authService.folderAuth(req.body, result => {
     res.json(result)
   })
 })
 // 新增授权人员
 router.post('/addUser', checkLogin, (req, res, next) => {
-  let personId = req.body.persionId
-  let authFolder = req.body.authFolder
-  let result = {
-    status: false
-  }
-  let folder = req.body.folder
-  let authTable = db.table('auth')
-  authTable.findOne({
-    folder: authFolder,
-    personId: personId
-  }).then(results => {
-    if (results && results.length && results.length > 0) {
-      resule.message = '此用户已被添加至当前文件夹的授权列表！'
-      res.json(result)
-      return;
-    }
-  }).then(() => {
-    authTable.add({
-      folder: authFolder,
-      personId: personId  // 还有其他授权信息。
-    })
+  authService.addOrUpdateAuth(userId, req.body, results => {
+    res.json(result);
   })
-
-
-  // select personid from user where persionid not in
 })
 // 删除授权人员
-router.post('/deleteUser', checkLogin, function (req, res, next) {
-  let folder = req.body.folder
-  let delUserListStr = req.body.delUserList
-  let sqlStr = ''
-  db.query(sqlStr).then(result => {
+router.post('/deleteUser', checkLogin, (req, res, next) => {
 
-  }).catch(error => {
+})
 
+// 修改授权信息
+router.post('/updateAuth', checkLogin, (req, res, next) => {
+  authService.addOrUpdateAuth(userId, req.body, results => {
+    res.json(result);
   })
 })
