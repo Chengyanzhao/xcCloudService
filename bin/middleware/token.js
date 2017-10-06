@@ -5,7 +5,7 @@ const config = require('../util/configUtil')
 const secret = config.Config.getInstance().secret
 
 function token(req, res, next) {
-    if (req.path === '/users/signIn') {
+    if (req.path === '/users/signIn' || req.path === '/users/signUp') {
         next()
         return
     }
