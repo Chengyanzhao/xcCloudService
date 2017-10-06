@@ -2,7 +2,6 @@
  * user service 
  */
 const db = require('../bin/database/db')
-const poolQuery = require('../bin/util/promise-mysql')
 var cryptUtil = require('../bin/util/cryptUtil')
 
 function signUp(opts, done) {
