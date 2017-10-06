@@ -40,7 +40,7 @@ function signUp(opts, done) {
             telephone: telePhone
         })
     }).then(data => {
-        result.status === true
+        result.status = true
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
