@@ -3,48 +3,53 @@
  */
 const path = require('path')
 const fs = require('fs')
-const poolQuery = require('../bin/util/promise-mysql')
+const fsUtil = require('../bin/util/fsUtil')
+const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
 var config = require('../bin/util/configUtil')
-var fsUtil = require('../bin/util/fsUtil')
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
+if (!fs.existsSync(baseDirector)) {
+    fsUtil.mkdirSync(baseDirector)
+}
 
-function authFolder(opts, callback) {
+function authFolder(opts, done) {
     let result = {
         status: false
     }
     let {
         personId
     } = opts
-    poolQuery.query(`select * from auth where personId='${personId}'`).then((results, fields) => {
+    let authTable = db.table('auth')
+    authTable.find({
+        personId
+    }).then(data => {
         let folderTree = {
             name: path.basename(baseDirector),
             file: [],
             folder: []
         }
-        if (results && results.length >= 0) {
-            results.forEach(item => {
+        if (data && data.length >= 0) {
+            data.forEach(item => {
                 let authFolder = item.folder
                 let authfolderData = getFolderInfo(folderTree, baseDirector, authFolder)
                 if (!authfolderData) {
                     // 授权已失效，删除数据库中此授权
                     result.data = folderTree
-                    callback(result)
+                    done(result)
                 } else {
                     let fullPath = baseDirector + authFolder
                     fsUtil.walk(fullPath, authfolderData, (err, fsResult) => {
                         result.status = true
                         result.data = folderTree
-                        callback(result)
+                        done(result)
                     })
                 }
             })
         }
     }).catch(error => {
-        result.status = false
-        result.message = '系统错误'
-        callback(result)
+        result.message = error && typeof error === 'string' ? error : '系统错误！'
+        done(result)
     })
 }
 
@@ -161,7 +166,8 @@ function renameFolder(userId, opts, done) {
         done(result)
     }
 }
-function propertyFolder(){}
+
+function propertyFolder() {}
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
