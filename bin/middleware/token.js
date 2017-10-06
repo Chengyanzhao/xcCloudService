@@ -5,6 +5,10 @@ const config = require('../util/configUtil')
 const secret = config.Config.getInstance().secret
 
 function token(req, res, next) {
+    if (req.path === '/users/signIn') {
+        next()
+        return
+    }
     let token
     let authorization = req.headers.authorization
     if (authorization && authorization.startsWith('Bearer '))
@@ -24,7 +28,7 @@ function token(req, res, next) {
                 res.redirect('/login')
             } else {
                 req.userId = decoded.userId
-                res.authorization=crype.encodeToken
+                res.authorization = crype.encodeToken
                 next()
             }
         })
