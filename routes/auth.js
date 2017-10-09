@@ -3,12 +3,6 @@ var router = express.Router();
 const db = require('../bin/database/db')
 const authService = require('../service/authService')
 
-
-function checkLogin(req, res, next) {
-  // return req.session.adminlogined;
-  next();
-}
-
 // 获取目录的授权信息
 router.get('/folderAuth', (req, res, next) => {
   let result = {
