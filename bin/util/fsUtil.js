@@ -22,7 +22,9 @@ var walk = function (dir, authfolderData, done) {
                         if (!--pending) done(null, authfolderData);
                     });
                 } else {
-                    authfolderData.file ? authfolderData.file.push(file) : authfolderData.file = [file]
+                    let fileName = path.basename(file)
+                    authfolderData.file ? authfolderData.file.push(fileName) : authfolderData.file = [fileName]
+                    authfolderData.file.sort()
                     // authfolderData.push(file);
                     if (!--pending) done(null, authfolderData);
                 }

@@ -6,6 +6,7 @@ const fs = require('fs')
 const fsUtil = require('../bin/util/fsUtil')
 const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
+const authCloudUtil = require('../bin/util/authCloudUtil')
 var config = require('../bin/util/configUtil')
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
@@ -13,6 +14,8 @@ if (!fs.existsSync(baseDirector)) {
     fsUtil.mkdirSync(baseDirector)
 }
 
+
+// 获取授权fs
 function authFolder(opts, done) {
     let result = {
         status: false
@@ -32,7 +35,18 @@ function authFolder(opts, done) {
         if (data && data.length >= 0) {
             data.forEach(item => {
                 let authFolder = item.folder
-                let authfolderData = getFolderInfo(folderTree, baseDirector, authFolder)
+                let auth = {
+                    subinherit: item.subinherit,
+                    subinherit: item.foldercreate,
+                    folderdelete: item.folderdelete,
+                    folderupload: item.folderupload,
+                    folderdownload: item.folderdownload,
+                    folderename: item.folderename,
+                    filedownload: item.filedownload,
+                    filedelete: item.filedelete,
+                    filerename: item.filerename
+                }
+                let authfolderData = getFolderInfo(folderTree, baseDirector, authFolder, auth)
                 if (!authfolderData) {
                     // 授权已失效，删除数据库中此授权
                     result.data = folderTree
@@ -53,7 +67,7 @@ function authFolder(opts, done) {
     })
 }
 
-function getFolderInfo(folderTree, root, authFolder) {
+function getFolderInfo(folderTree, root, authFolder, auth) {
     let authFolderArr = authFolder.split('/').filter(item => {
         return !!item
     });
@@ -72,6 +86,9 @@ function getFolderInfo(folderTree, root, authFolder) {
             name: authFolderItem,
             file: [],
             folder: []
+        }
+        if (i === authFolderArr.length - 1) {
+            child.auth = auth
         }
         curOperateFolder.folder.push(child)
         curOperateFolder = child
