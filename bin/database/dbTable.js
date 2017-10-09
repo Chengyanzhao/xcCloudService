@@ -62,15 +62,16 @@ proto.update = function (query, updateData) {
             where += condition
         }
     }
-    let updateStr = ''
+    let updateStrArr = []
     if (updateData) {
         for (let key in updateData) {
-            let value = query[key]
+            let value = updateData[key]
             let condition = ` ${key}='${value}'`
-            updateStr += condition
+            updateStrArr.push(condition)
         }
     }
-    let sqlStr = `UPDATE ${this.tableName} SET ${updateStr}`;
+    let updateStr = updateStrArr.join(',')
+    let sqlStr = `UPDATE ${this.tableName} SET ${updateStr} ${where}`;
     return dbBase.execute(sqlStr);
     /**
      * UPDATE [LOW_PRIORITY] [IGNORE] tbl_name  
