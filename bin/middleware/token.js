@@ -5,6 +5,8 @@ const config = require('../util/configUtil')
 const secret = config.Config.getInstance().secret
 
 function token(req, res, next) {
+    next()
+    return
     if (req.path === '/users/signIn' || req.path === '/users/signUp') {
         next()
         return
@@ -23,7 +25,7 @@ function token(req, res, next) {
             }
             let decoded = result.decoded
             let now = new Date().getTime()
-            let timeOut = now < decoded.exp * 1000
+            let timeOut = now > decoded.exp * 1000
             if (timeOut) {
                 res.redirect('/login')
             } else {
