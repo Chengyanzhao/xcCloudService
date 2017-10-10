@@ -27,18 +27,32 @@ proto.add = function (data) {
 
 proto.find = function (query) {
     let where = query ? 'WHERE' : ''
+    let whereArr = []
     if (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key}='${value}'`
-            where += condition
+            whereArr.push(condition) 
         }
     }
-
+    where += whereArr.join(' and ')
     let sqlStr = `SELECT * FROM ${this.tableName} ${where}`;
     return dbBase.execute(sqlStr);
 }
-
+proto.like = function (query) {
+    let where = query ? 'WHERE' : ''
+    let whereArr = []
+    if (query) {
+        for (let key in query) {
+            let value = query[key]
+            let condition = ` ${key} like '%${value}%%'`
+            whereArr.push(condition) 
+        }
+    }
+    where += whereArr.join(' and ')
+    let sqlStr = `SELECT * FROM ${this.tableName} ${where}`;
+    return dbBase.execute(sqlStr);
+}
 proto.findOne = function (query) {
     let where = query ? 'WHERE' : ''
     if (query) {
@@ -62,15 +76,16 @@ proto.update = function (query, updateData) {
             where += condition
         }
     }
-    let updateStr = ''
+    let updateStrArr = []
     if (updateData) {
         for (let key in updateData) {
-            let value = query[key]
+            let value = updateData[key]
             let condition = ` ${key}='${value}'`
-            updateStr += condition
+            updateStrArr.push(condition)
         }
     }
-    let sqlStr = `UPDATE ${this.tableName} SET ${updateStr}`;
+    let updateStr = updateStrArr.join(',')
+    let sqlStr = `UPDATE ${this.tableName} SET ${updateStr} ${where}`;
     return dbBase.execute(sqlStr);
     /**
      * UPDATE [LOW_PRIORITY] [IGNORE] tbl_name  
