@@ -27,18 +27,32 @@ proto.add = function (data) {
 
 proto.find = function (query) {
     let where = query ? 'WHERE' : ''
+    let whereArr = []
     if (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key}='${value}'`
-            where += condition
+            whereArr.push(condition) 
         }
     }
-
+    where += whereArr.join(' and ')
     let sqlStr = `SELECT * FROM ${this.tableName} ${where}`;
     return dbBase.execute(sqlStr);
 }
-
+proto.like = function (query) {
+    let where = query ? 'WHERE' : ''
+    let whereArr = []
+    if (query) {
+        for (let key in query) {
+            let value = query[key]
+            let condition = ` ${key} like '%${value}%%'`
+            whereArr.push(condition) 
+        }
+    }
+    where += whereArr.join(' and ')
+    let sqlStr = `SELECT * FROM ${this.tableName} ${where}`;
+    return dbBase.execute(sqlStr);
+}
 proto.findOne = function (query) {
     let where = query ? 'WHERE' : ''
     if (query) {
