@@ -28,7 +28,7 @@ function token(req, res, next) {
                 res.redirect('/login')
             } else {
                 req.userId = decoded.userId
-                res.authorization = crypt.encodeToken(req.userId)
+                res.setHeader('authorization', 'Bearer ' + crypt.encodeToken(req.userId))
                 next()
             }
         })
