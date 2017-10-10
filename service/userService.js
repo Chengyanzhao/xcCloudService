@@ -59,14 +59,14 @@ function signIn(opts, done) {
     userTable.findOne({
         username: userName
     }).then(data => {
-        if (!data || !data.length || data.length === 0) {
+        if (!data) {
             return Promise.reject('用户不存在！')
         }
-        if (data[0].password !== passWord) {
+        if (data.password !== passWord) {
             return Promise.reject('密码错误！')
         }
         result.status = true
-        let userId = data.userId
+        let userId = data.userid
         let token = cryptUtil.encodeToken(userId)
         result.token = token
         done(result)
