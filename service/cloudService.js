@@ -7,7 +7,8 @@ const fsUtil = require('../bin/util/fsUtil')
 const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
 const authCloudUtil = require('../bin/util/authCloudUtil')
-var config = require('../bin/util/configUtil')
+const commonService = require('./commonSevice')
+const config = require('../bin/util/configUtil')
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
 if (!fs.existsSync(baseDirector)) {
@@ -104,28 +105,29 @@ function createFolder(userId, opts, done) {
         status: false
     }
     let {
-        authKey,
         baseFolder,
         newFolder
     } = opts
     // 参数验证
     let valida = true
-    // 权限判定
-    let auth = {}
-    if (auth.createFolder) {
-        let folderPath = path.resolve(baseFolder, newFolder)
-        if (!fs.existsSync(folderPath)) {
-            fs.mkdirSync(folderPath);
-            // 实体目录创建文件夹
-            result.status = true
+    // 获取用户权限
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        // 权限判定
+        if (auth.createfolder) {
+            let folderPath = path.resolve(baseFolder, newFolder)
+            if (!fs.existsSync(folderPath)) {
+                fs.mkdirSync(folderPath);
+                // 实体目录创建文件夹
+                result.status = true
+            } else {
+                result.message = '此文件夹已存在！'
+            }
+            done(result)
         } else {
-            result.message = '此文件夹已存在！'
+            result.message = '您没有此目录下的创建目录权限！'
+            done(result)
         }
-        done(result)
-    } else {
-        result.message = '您没有此目录下的创建目录权限！'
-        done(result)
-    }
+    })
 }
 // 删除文件夹
 function deleteFolder(userId, opts, done) {
@@ -184,7 +186,7 @@ function renameFolder(userId, opts, done) {
     }
 }
 
-function propertyFolder() {}
+function propertyFolder() { }
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
