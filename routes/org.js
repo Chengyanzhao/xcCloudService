@@ -1,6 +1,5 @@
 var express = require('express')
 var router = express.Router()
-var pool = require('../bin/connection/mysqlConn')
 var orgService = require('../service/orgService')
 
 // 获取组织机构
