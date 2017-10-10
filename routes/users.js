@@ -67,4 +67,16 @@ router.get('/getUserByOpts', function (req, res, next) {
     res.json(result)
   })
 })
+router.post('/updateUser', function (req, res, next) {
+  let opts = req.body
+  userService.updateUser(opts, result => {
+    res.json(result)
+  })
+})
+router.post('/deleteUser', function (req, res, next) {
+  let opts = req.body
+  userService.deleteUser(opts, result => {
+    res.json(result)
+  })
+})
 module.exports = router;
