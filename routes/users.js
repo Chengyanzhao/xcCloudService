@@ -60,4 +60,11 @@ router.get('/userInfo', function (req, res, next) {
     res.json(result)
   })
 })
+// 获取用户信息
+router.get('/getUserByOpts', function (req, res, next) {
+  let opts = req.query
+  userService.getUserByOpts(opts, result => {
+    res.json(result)
+  })
+})
 module.exports = router;

@@ -89,23 +89,59 @@ function userInfo(opts, done) {
     }).then(data => {
         result.status = true
         result.data = data
-        done(data)
+        done(result)
     }).catch(err => {
         result.message = '系统错误！'
         done(result)
     })
 }
-function updatePassword(userId,opts,done){
+function updatePassword(userId, opts, done) {
     let result = {
         status: false
     }
-    let {newPwd} = opts
+    let { newPwd } = opts
     let userTable = db.table('user')
-    userTable.update({userId},{password:newPwd}).then(result=>{
-        result.status=true
+    userTable.update({ userId }, { password: newPwd }).then(result => {
+        result.status = true
         done(result)
-    }).catch(err=>{
-        result.message='系统错误！'
+    }).catch(err => {
+        result.message = '系统错误！'
+        done(result)
+    })
+}
+/**
+ * 根据条件获取用户
+ * 
+ * @param {any} opts 
+ * @param {any} done 
+ */
+function getUserByOpts(opts, done) {
+    let { nickname, orgid } = opts
+    let query
+    if (nickname) {
+        query = {
+            nickname
+        }
+    }
+    if (orgid) {
+        if (query) {
+            query.orgid = orgid
+        } else {
+            query = {
+                orgid
+            }
+        }
+    }
+    let userTable = db.table('user')
+    let result = {
+        status: false
+    }
+    userTable.like(query).then((res) => {
+        result.status = true
+        result.data = res
+        done(result)
+    }).catch(() => {
+        result.message = '获取失败'
         done(result)
     })
 }
@@ -113,5 +149,6 @@ module.exports = {
     signUp,
     signIn,
     userInfo,
-    updatePassword
+    updatePassword,
+    getUserByOpts
 }
