@@ -3,7 +3,7 @@
  */
 const db = require('../bin/database/db')
 const poolQuery = require('../bin/util/promise-mysql')
-var cryptUtil = require('../bin/util/cryptUtil')
+const cryptUtil = require('../bin/util/cryptUtil')
 
 // 获取目录授权
 function folderAuth(opts, done) {
