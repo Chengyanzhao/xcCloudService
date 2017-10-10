@@ -72,25 +72,19 @@ function initOrgTree(data) {
       tree[item.id].children.push(item)
     } else {
       tree[item.id] = item
-      item.children = []
     }
     if (tree[item.orgpid]) {
-      tree[item.orgpid].children.push(item)
+      if (tree[item.orgpid].children) {
+        tree[item.orgpid].children.push(item)
+      } else {
+        tree[item.orgpid].children = [item]
+      }
     }
     if (item.level === 1 || item.level === '1') {
       tree.rootNode.children.push(item)
     }
   }
-  return [tree.rootNode]
-}
-/**
- * 将遍历的节点，插入到树形结构中
- * 
- * @param {any} node 要插入节点的信息 
- * @param {any} tree 树信息
- */
-function insertDataToTree(node, tree) {
-
+  return tree
 }
 module.exports = {
   getOrgs,
