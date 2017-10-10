@@ -86,6 +86,30 @@ function initOrgTree(data) {
   }
   return tree
 }
+/**
+ * 根据条件获取用户
+ * 
+ * @param {any} opts 
+ * @param {any} done 
+ */
+function getUserByOpts(opts, done) {
+  let { nickname, orgId } = opts
+  let query
+  if (nickname) {
+    query = {
+      nickname
+    }
+  }
+  if (orgId) {
+    if (query) {
+      query.orgId = orgId
+    } else {
+      query = {
+        orgId
+      }
+    }
+  }
+}
 module.exports = {
   getOrgs,
   addOrg,
