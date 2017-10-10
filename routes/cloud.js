@@ -11,6 +11,7 @@ const cloudService = require('../service/cloudService')
 var baseDirector = config.Config.getInstance().baseFolder
 // 获取目录树
 router.get('/authFolder', function (req, res, next) {
+    let userId = req.userId
     let opts = req.query
     cloudService.authFolder(opts, result => {
         res.json(result)
