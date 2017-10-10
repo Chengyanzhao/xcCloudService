@@ -64,7 +64,15 @@ proto.findOne = function (query) {
     }
 
     let sqlStr = `SELECT * FROM ${this.tableName} ${where} LIMIT 1`;
-    return dbBase.execute(sqlStr);
+    return dbBase.execute(sqlStr).then(data => {
+        return new Promise(resolve => {
+            resolve(data[0])
+        })
+    }).catch(error => {
+        return new Promise((resolve, reject) => {
+            reject(error)
+        })
+    });
 }
 
 proto.update = function (query, updateData) {
