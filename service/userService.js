@@ -75,7 +75,51 @@ function signIn(opts, done) {
         done(result)
     })
 }
-
+function updateUser(opts, done) {
+    let result = {
+        status: false
+    }
+    let { id } = opts
+    let {
+        userName,
+        passWord,
+        nickName,
+        orgId,
+        sex,
+        email,
+        mobilePhone,
+        telePhone
+    } = opts
+    let userTable = db.table('user')
+    userTable.update({ id }, {
+        username: userName,
+        password: passWord,
+        nickname: nickName,
+        orgid: orgId,
+        sex: sex,
+        email: email,
+        mobilephone: mobilePhone,
+        telephone: telePhone
+    }).then((res) => {
+        result.status = true
+        done(result)
+    }).catch((res) => {
+        done(result)
+    })
+}
+function deleteUser(opts, done) {
+    let result = {
+        status: false
+    }
+    let { id } = opts
+    let userTable = db.table('user')
+    userTable.remove({ id }).then((res) => {
+        result.status = true
+        done(result)
+    }).catch((res) => {
+        done(result)
+    })
+}
 function userInfo(opts, done) {
     let result = {
         status: false
@@ -150,5 +194,7 @@ module.exports = {
     signIn,
     userInfo,
     updatePassword,
-    getUserByOpts
+    getUserByOpts,
+    updateUser,
+    deleteUser
 }

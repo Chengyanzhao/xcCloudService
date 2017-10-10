@@ -32,7 +32,7 @@ proto.find = function (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key}='${value}'`
-            whereArr.push(condition) 
+            whereArr.push(condition)
         }
     }
     where += whereArr.join(' and ')
@@ -46,7 +46,7 @@ proto.like = function (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key} like '%${value}%%'`
-            whereArr.push(condition) 
+            whereArr.push(condition)
         }
     }
     where += whereArr.join(' and ')
@@ -96,8 +96,18 @@ proto.update = function (query, updateData) {
      */
 }
 
-proto.remove = function () {
-    let sqlStr = '';
+proto.remove = function (query) {
+    let where = query ? 'WHERE' : ''
+    let whereArr = []
+    if (query) {
+        for (let key in query) {
+            let value = query[key]
+            let condition = ` ${key}='${value}'`
+            whereArr.push(condition)
+        }
+    }
+    where += whereArr.join(' and ')
+    let sqlStr = `DELETE FROM ${this.tableName} ${where}`;
     return dbBase.execute(sqlStr);
 }
 
