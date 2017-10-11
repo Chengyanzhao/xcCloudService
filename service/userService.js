@@ -66,17 +66,23 @@ function signIn(opts, done) {
             return Promise.reject('密码错误！')
         }
         result.status = true
+        let userId = data.userid
+        let token = 'Bearer ' + cryptUtil.encodeToken(userId)
+        result.token = token
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
         done(result)
     })
 }
+
 function updateUser(opts, done) {
     let result = {
         status: false
     }
-    let { id } = opts
+    let {
+        id
+    } = opts
     let {
         userName,
         passWord,
@@ -88,7 +94,9 @@ function updateUser(opts, done) {
         telePhone
     } = opts
     let userTable = db.table('user')
-    userTable.update({ id }, {
+    userTable.update({
+        id
+    }, {
         username: userName,
         password: passWord,
         nickname: nickName,
@@ -104,19 +112,25 @@ function updateUser(opts, done) {
         done(result)
     })
 }
+
 function deleteUser(opts, done) {
     let result = {
         status: false
     }
-    let { id } = opts
+    let {
+        id
+    } = opts
     let userTable = db.table('user')
-    userTable.remove({ id }).then((res) => {
+    userTable.remove({
+        id
+    }).then((res) => {
         result.status = true
         done(result)
     }).catch((res) => {
         done(result)
     })
 }
+
 function userInfo(opts, done) {
     let result = {
         status: false
@@ -136,13 +150,20 @@ function userInfo(opts, done) {
         done(result)
     })
 }
+
 function updatePassword(userId, opts, done) {
     let result = {
         status: false
     }
-    let { newPwd } = opts
+    let {
+        newPwd
+    } = opts
     let userTable = db.table('user')
-    userTable.update({ userId }, { password: newPwd }).then(result => {
+    userTable.update({
+        userId
+    }, {
+        password: newPwd
+    }).then(result => {
         result.status = true
         done(result)
     }).catch(err => {
@@ -157,7 +178,10 @@ function updatePassword(userId, opts, done) {
  * @param {any} done 
  */
 function getUserByOpts(opts, done) {
-    let { nickname, orgid } = opts
+    let {
+        nickname,
+        orgid
+    } = opts
     let query
     if (nickname) {
         query = {
