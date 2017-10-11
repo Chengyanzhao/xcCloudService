@@ -14,4 +14,19 @@ function getAuthInfo(userId, baseFolder) {
     })
 }
 
-module.export = { getAuthInfo }
+// 管理员验证
+function validAdmin(userId) {
+    let userTable = db.table('user')
+    return userTable.findOne({
+        userid: userId
+    }).then(data => {
+        return Promise.resolve(data.admin === '1')
+    }).catch(error => {
+        return Promise.reject()
+    })
+}
+
+module.export = {
+    getAuthInfo,
+    validAdmin
+}
