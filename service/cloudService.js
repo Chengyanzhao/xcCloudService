@@ -9,12 +9,13 @@ const cryptUtil = require('../bin/util/cryptUtil')
 const authCloudUtil = require('../bin/util/authCloudUtil')
 const commonService = require('./commonSevice')
 const config = require('../bin/util/configUtil')
+const validaUtil = require('../bin/util/validaUtil')
+
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
 if (!fs.existsSync(baseDirector)) {
     fsUtil.mkdirSync(baseDirector)
 }
-
 
 // 获取授权fs
 function authFolder(opts, done) {
@@ -67,7 +68,6 @@ function authFolder(opts, done) {
         done(result)
     })
 }
-
 function getFolderInfo(folderTree, root, authFolder, auth) {
     let authFolderArr = authFolder.split('/').filter(item => {
         return !!item
@@ -109,12 +109,24 @@ function createFolder(userId, opts, done) {
         newFolder
     } = opts
     // 参数验证
-    let valida = true
+    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(newFolder)) {
+        result.message = '缺少参数！'
+        done(result)
+    } else if (!validaUtil.vFolderName(newFolder)) {
+        result.message = '文件夹名不能包含下列任何字符:\/:*?"<>|'
+        done(result)
+    }
     // 获取用户权限
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
-        if (auth.createfolder) {
-            let folderPath = path.resolve(baseFolder, newFolder)
+        if (auth.admin || auth.createfolder) {
+            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
+            if (!fs.existsSync(baseFolderPath)) {
+                result.message = '当前操作目录不存在，请刷新后重试！'
+                done(result)
+                return
+            }
+            let folderPath = path.resolve(baseFolderPath, newFolder)
             if (!fs.existsSync(folderPath)) {
                 fs.mkdirSync(folderPath);
                 // 实体目录创建文件夹
@@ -139,22 +151,26 @@ function deleteFolder(userId, opts, done) {
         delFolder
     } = opts
     // 参数验证
-    let valida = true
-    // 权限判定
-    let auth = {}
-    if (auth.deleteFolder) {
-        let folderPath = path.resolve(baseFolder, newFolder)
-        if (!fs.existsSync(folderPath)) {
-            result.status = true
-        } else {
-            fsUtil.deleteFolder(folderPath)
-            result.status = true
-        }
-        done(result)
-    } else {
-        result.message = '您没有此目录下的删除目录权限！'
+    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(delFolder)) {
+        result.message = '缺少参数！'
         done(result)
     }
+    // 权限判定
+    // 获取用户权限
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        // 权限判定
+        if (auth.admin || auth.deletefolder) {
+            let folderPath = path.resolve(path.dirname(baseDirector), baseFolder, delFolder)
+            if (fs.existsSync(folderPath)) {
+                fsUtil.deleteFolder(folderPath)
+            }
+            result.status = true
+            done(result)
+        } else {
+            result.message = '您没有此目录下的删除目录权限！'
+            done(result)
+        }
+    })
 }
 // 重命名文件夹
 function renameFolder(userId, opts, done) {
@@ -167,26 +183,32 @@ function renameFolder(userId, opts, done) {
         newName
     } = opts
     // 参数验证
-    let valida = true
-    // 权限判定
-    let auth = {}
-    if (auth.renameFolder) {
-        let oldPath = path.resolve(baseFolder, oldName)
-        if (!fs.existsSync(oldPath)) {
-            result.message = '此文件夹不存在，请刷新后重试！'
-        } else {
-            let newPath = path.resolve(baseFolder, newName)
-            fs.renameSync(oldPath, newPath)
-            result.status = true
-        }
-        done(result)
-    } else {
-        result.message = '您没有此文件夹的重命名权限！'
+    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
+        result.message = '缺少参数！'
         done(result)
     }
+    // 权限判定
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        if (auth.admin || auth.renamefolder) {
+            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
+            let oldPath = path.resolve(baseFolderPath, oldName)
+            let newPath = path.resolve(baseFolderPath, newName)
+            if (fs.existsSync(oldPath)) {
+                fs.renameSync(oldPath, newPath)
+                result.status = true
+            } else {
+                result.message = '此文件夹不存在，请刷新后重试！'
+            }
+
+            done(result)
+        } else {
+            result.message = '您没有此文件夹的重命名权限！'
+            done(result)
+        }
+    })
 }
 
-function propertyFolder() { }
+function propertyFolder() {}
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
