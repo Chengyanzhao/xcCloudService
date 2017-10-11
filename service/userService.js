@@ -35,24 +35,23 @@ function signUp(userId, opts, done) {
     let result = {
         status: false
     }
+    let userTable = db.table('user')
+    let {
+        userName,
+        passWord,
+        nickName,
+        orgId,
+        sex,
+        email,
+        mobilePhone,
+        telePhone
+    } = opts
+    let newUserId = cryptUtil.guid()
     // 验证是否为管理员
     commonService.validAdmin(userId).then(isAdmin => {
         if (!isAdmin) {
-            result.message = '您没有管理员权限！'
-            done(result)
+            return Promise.reject('您没有管理员权限！')
         } else {
-            let {
-                userName,
-                passWord,
-                nickName,
-                orgId,
-                sex,
-                email,
-                mobilePhone,
-                telePhone
-            } = opts
-            let userId = cryptUtil.guid()
-            let userTable = db.table('user')
             return userTable.find({
                 username: userName
             })
@@ -63,7 +62,7 @@ function signUp(userId, opts, done) {
         }
     }).then(() => {
         return userTable.add({
-            userid: userId,
+            userid: newUserId,
             username: userName,
             password: passWord,
             nickname: nickName,
