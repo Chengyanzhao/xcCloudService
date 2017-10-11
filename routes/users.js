@@ -1,8 +1,10 @@
 var express = require('express')
 var router = express.Router()
-var pool = require('../bin/connection/mysqlConn')
 var cryptUtil = require('../bin/util/cryptUtil')
 var userService = require('../service/userService')
+
+/** 处理管理员账户 */
+userService.adminAccount()
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
@@ -22,8 +24,9 @@ router.get('/', function (req, res, next) {
  * @param {String} telephone 电话
  */
 router.post('/signUp', function (req, res, next) {
-  var opts = req.body;
-  userService.signUp(opts, result => {
+  let userId = req.userId
+  let opts = req.body;
+  userService.signUp(userId, opts, result => {
     res.json(result);
   })
 })
