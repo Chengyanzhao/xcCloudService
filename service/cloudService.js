@@ -18,16 +18,13 @@ if (!fs.existsSync(baseDirector)) {
 }
 
 // 获取授权fs
-function authFolder(opts, done) {
+function authFolder(opts, userId, done) {
     let result = {
         status: false
     }
-    let {
-        personId
-    } = opts
     let authTable = db.table('auth')
     authTable.find({
-        personId
+        userId
     }).then(data => {
         let folderTree = {
             name: path.basename(baseDirector),

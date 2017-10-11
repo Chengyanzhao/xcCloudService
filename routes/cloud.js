@@ -13,7 +13,7 @@ var baseDirector = config.Config.getInstance().baseFolder
 router.get('/authFolder', function (req, res, next) {
     let userId = req.userId
     let opts = req.query
-    cloudService.authFolder(opts, result => {
+    cloudService.authFolder(opts, userId, result => {
         res.json(result)
     })
 })
