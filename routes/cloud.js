@@ -18,7 +18,12 @@ router.get('/authFolder', function (req, res, next) {
     })
 })
 
-// 创建文件夹
+/**
+ * 创建文件夹
+ * 
+ * @param {String} baseFolder 当前操作目录，/讯传网络/a/b/c
+ * @param {String} newFolder 创建的文件夹名称
+ */
 router.post('/createFolder', (req, res, next) => {
     let userId = req.userId
     cloudService.createFolder(userId, req.body, result => {
