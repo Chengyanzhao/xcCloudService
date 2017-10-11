@@ -1,16 +1,28 @@
 const db = require('../bin/database/db')
 const authCloudUtil = require('../bin/util/authCloudUtil')
 
+// 获取用户授权信息
 function getAuthInfo(userId, baseFolder) {
-    return new Promise((resolve, reject) => {
-        let authTable = db.table('auth')
-        authTable.find({
-            userid: userId
-        }).then(data => {
-            resolve(authCloudUtil.getAuthInfo(data, baseFolder))
-        }).catch(error => {
-            reject(error)
-        })
+    // 判断是否为管理员
+    let userTable = db.table('user')
+    return userTable.findOne({
+        userId: userId
+    }).then(userData => {
+        if (userData.admin) {
+            return Promise.resolve({
+                admin: userData.admin
+            })
+        } else {
+            let authTable = db.table('auth')
+            return authTable.find({
+                userid: userId
+            })
+        }
+    }).then(data => {
+        let resData = data.admin ? data : authCloudUtil.getAuthInfo(data, baseFolder)
+        return Promise.resolve(resData)
+    }).catch(error => {
+        return Promise.reject(error)
     })
 }
 
@@ -26,7 +38,7 @@ function validAdmin(userId) {
     })
 }
 
-module.export = {
+module.exports = {
     getAuthInfo,
     validAdmin
 }
