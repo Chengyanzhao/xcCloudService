@@ -2,26 +2,61 @@
  * user service 
  */
 const db = require('../bin/database/db')
-var cryptUtil = require('../bin/util/cryptUtil')
+const cryptUtil = require('../bin/util/cryptUtil')
+const commonService = require('./commonSevice')
 
-function signUp(opts, done) {
+/**
+ * 后端启动时，判断数据库user表中是否存在管理员账户。
+ */
+function adminAccount() {
+    let userTable = db.table('user')
+    userTable.findOne({
+        admin: 1
+    }).then(data => {
+        if (!data) {
+            let userName = 'admin',
+                passWord = 'admin',
+                nickName = '超级管理员',
+                userId = cryptUtil.guid()
+            userTable.add({
+                userid: userId,
+                admin: 1,
+                username: userName,
+                password: passWord,
+                nickname: nickName,
+            })
+        }
+    }).catch(error => {
+
+    })
+}
+
+function signUp(userId, opts, done) {
     let result = {
         status: false
     }
-    let {
-        userName,
-        passWord,
-        nickName,
-        orgId,
-        sex,
-        email,
-        mobilePhone,
-        telePhone
-    } = opts
-    let userId = cryptUtil.guid()
-    let userTable = db.table('user')
-    userTable.find({
-        username: userName
+    // 验证是否为管理员
+    commonService.validAdmin(userId).then(isAdmin => {
+        if (!isAdmin) {
+            result.message = '您没有管理员权限！'
+            done(result)
+        } else {
+            let {
+                userName,
+                passWord,
+                nickName,
+                orgId,
+                sex,
+                email,
+                mobilePhone,
+                telePhone
+            } = opts
+            let userId = cryptUtil.guid()
+            let userTable = db.table('user')
+            return userTable.find({
+                username: userName
+            })
+        }
     }).then(data => {
         if (data && data.length && data.length > 0) {
             return Promise.reject('此用户名已被占用！');
@@ -211,6 +246,7 @@ function getUserByOpts(opts, done) {
     })
 }
 module.exports = {
+    adminAccount,
     signUp,
     signIn,
     userInfo,
