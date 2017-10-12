@@ -65,6 +65,7 @@ function authFolder(opts, userId, done) {
         done(result)
     })
 }
+
 function getFolderInfo(folderTree, root, authFolder, auth) {
     let authFolderArr = authFolder.split('/').filter(item => {
         return !!item
@@ -152,7 +153,6 @@ function deleteFolder(userId, opts, done) {
         result.message = '缺少参数！'
         done(result)
     }
-    // 权限判定
     // 获取用户权限
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
@@ -204,6 +204,38 @@ function renameFolder(userId, opts, done) {
         }
     })
 }
+// 下载文件夹
+function downloadFolder(userId, opts, done) {
+    let result = {
+        status: false
+    }
+    let {
+        folder,
+    } = opts
+    // 参数验证
+    if (!validaUtil.vString(folder)) {
+        result.message = '缺少参数！'
+        done(result)
+    }
+    // 获取用户权限
+    let baseFolder = path.dirname(folder)
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        // 权限判定
+        if (auth.admin || auth.downloadfolder) {
+            let folderPath = path.resolve(baseFolder, delFolder)
+            // 压缩zip
+            // 返回前端
+            if (fs.existsSync(folderPath)) {
+                fsUtil.deleteFolder(folderPath)
+            }
+            result.status = true
+            done(result)
+        } else {
+            result.message = '您没有此目录下的删除目录权限！'
+            done(result)
+        }
+    })
+}
 
 function propertyFolder() {}
 /** --------------- 文件接口 ---------------- */
@@ -226,23 +258,28 @@ function renameFile(userId, opts, done) {
         newName
     } = opts
     // 参数验证
-    let valida = true
-    // 权限判定
-    let auth = {}
-    if (auth.renameFile) {
-        let oldPath = path.resolve(baseFolder, oldName)
-        if (!fs.existsSync(oldPath)) {
-            result.message = '此文件不存在，请刷新后重试！'
-        } else {
-            let newPath = path.resolve(baseFolder, newName)
-            fs.renameSync(oldPath, newPath)
-            result.status = true
-        }
-        done(result)
-    } else {
-        result.message = '您没有此文件的重命名权限！'
+    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
+        result.message = '缺少参数！'
         done(result)
     }
+    // 权限判定
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        if (auth.admin || auth.renamefile) {
+            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
+            let oldPath = path.resolve(baseFolderPath, oldName)
+            let newPath = path.resolve(baseFolderPath, newName)
+            if (fs.existsSync(oldPath)) {
+                fs.renameSync(oldPath, newPath)
+                result.status = true
+            } else {
+                result.message = '此文件不存在，请刷新后重试！'
+            }
+            done(result)
+        } else {
+            result.message = '您没有此文件的重命名权限！'
+            done(result)
+        }
+    })
 }
 // 删除文件
 function deleteFile(userId, opts, done) {
@@ -251,25 +288,28 @@ function deleteFile(userId, opts, done) {
     }
     let {
         baseFolder,
-        delFile
+        delFileName
     } = opts
     // 参数验证
-    let valida = true
-    // 权限判定
-    let auth = {}
-    if (auth.deleteFile) {
-        let filePath = path.resolve(baseFolder, delFile)
-        if (!fs.existsSync(filePath)) {
-            result.status = true
-        } else {
-            fs.unlinkSync(filePath)
-            result.status = true
-        }
-        done(result)
-    } else {
-        result.message = '您没有删除此文件的权限！'
+    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(delFileName)) {
+        result.message = '缺少参数！'
         done(result)
     }
+    // 获取用户权限
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        // 权限判定
+        if (auth.admin || auth.deletefolder) {
+            let filePath = path.resolve(path.dirname(baseDirector), baseFolder, delFileName)
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+            result.status = true
+            done(result)
+        } else {
+            result.message = '您没有删除此文件的权限！'
+            done(result)
+        }
+    })
 }
 module.exports = {
     authFolder,
