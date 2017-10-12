@@ -10,7 +10,7 @@ function token(req, res, next) {
         return
     }
     let token
-    let authorization = req.headers.authorization
+    let authorization = req.headers.authorization || req.query.authorization
     if (authorization && authorization.startsWith('Bearer '))
         token = authorization.substr(7)
     if (!token) {

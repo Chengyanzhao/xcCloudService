@@ -10,7 +10,6 @@ const authCloudUtil = require('../bin/util/authCloudUtil')
 const commonService = require('./commonSevice')
 const config = require('../bin/util/configUtil')
 const validaUtil = require('../bin/util/validaUtil')
-
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
 if (!fs.existsSync(baseDirector)) {
@@ -237,15 +236,34 @@ function downloadFolder(userId, opts, done) {
     })
 }
 
-function propertyFolder() {}
+function propertyFolder() { }
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
 
 }
 // 下载文件
-function downloadFile(userId, opts, done) {
-
+function downloadFile(userId, opts, res, done) {
+    let filePath = opts.filePath
+    let rootPath = `${baseDirector}/${filePath}`
+    fs.exists(rootPath, function (exist) {
+        if (exist) {
+            let paths = filePath.split('/')
+            let name = paths[paths.length - 1]
+            res.set({
+                'Content-Type': 'application/octet-stream',
+                "Content-Disposition": "attachment;filename=" + encodeURI(name)
+            });
+            fReadStream = fs.createReadStream(rootPath);
+            fReadStream.on("data", (chunk) => res.write(chunk, "binary"));
+            fReadStream.on("end", function () {
+                res.end();
+            });
+        } else {
+            res.send("file not exist!");
+            res.end();
+        }
+    })
 }
 // 文件重命名
 function renameFile(userId, opts, done) {

@@ -84,8 +84,10 @@ router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
     }
 })
 // 下载文件
-router.post('/downloadFile', (req, res, next) => {
-
+router.get('/downloadFile', (req, res, next) => {
+    let userId = req.userId
+    let opts = req.query
+    cloudService.downloadFile(userId, opts, res)
 })
 // 重命名文件
 router.post('/renameFile', (req, res, next) => {
