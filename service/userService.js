@@ -131,20 +131,20 @@ function updateUser(opts, done) {
     userTable.update({
         id
     }, {
-        username: userName,
-        password: passWord,
-        nickname: nickName,
-        orgid: orgId,
-        sex: sex,
-        email: email,
-        mobilephone: mobilePhone,
-        telephone: telePhone
-    }).then((res) => {
-        result.status = true
-        done(result)
-    }).catch((res) => {
-        done(result)
-    })
+            username: userName,
+            password: passWord,
+            nickname: nickName,
+            orgid: orgId,
+            sex: sex,
+            email: email,
+            mobilephone: mobilePhone,
+            telephone: telePhone
+        }).then((res) => {
+            result.status = true
+            done(result)
+        }).catch((res) => {
+            done(result)
+        })
 }
 
 function deleteUser(opts, done) {
@@ -196,14 +196,14 @@ function updatePassword(userId, opts, done) {
     userTable.update({
         userId
     }, {
-        password: newPwd
-    }).then(result => {
-        result.status = true
-        done(result)
-    }).catch(err => {
-        result.message = '系统错误！'
-        done(result)
-    })
+            password: newPwd
+        }).then(result => {
+            result.status = true
+            done(result)
+        }).catch(err => {
+            result.message = '系统错误！'
+            done(result)
+        })
 }
 /**
  * 根据条件获取用户
@@ -216,7 +216,10 @@ function getUserByOpts(opts, done) {
         nickname,
         orgid
     } = opts
-    let query
+    // 这里排除管理员
+    let query = {
+        admin: 0
+    }
     if (nickname) {
         query = {
             nickname
@@ -231,6 +234,7 @@ function getUserByOpts(opts, done) {
             }
         }
     }
+
     let userTable = db.table('user')
     let result = {
         status: false
