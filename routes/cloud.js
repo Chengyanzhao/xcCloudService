@@ -77,11 +77,27 @@ router.post('/propertyFolder', (req, res, next) => {
 })
 /** --------------- 文件接口 ---------------- */
 // 上传文件
+var uploadDir = path.join(path.resolve(__dirname, "../"), "upload");
 router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
     let userId = req.userId
-    if (!req.file) {
-
+    if (req.file) {
+        var file = req.file
+        var fsPromise = function (file) {
+            let filePath = req.body.folderPath
+            let rootPath = `${baseDirector}/${filePath}`
+            return new Promise(function (resolved, rejected) {
+                fs.rename(path.join(uploadDir, file.filename), path.join(rootPath, file.originalname), function (err) {
+                    if (err) {
+                        rejected(err);
+                    } else {
+                        resolved();
+                    }
+                });
+            });
+        }
+        fsPromise(file)
     }
+    res.send()
 })
 // 下载文件
 router.get('/downloadFile', (req, res, next) => {
