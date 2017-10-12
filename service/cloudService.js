@@ -21,15 +21,26 @@ function authFolder(opts, userId, done) {
     let result = {
         status: false
     }
-    let authTable = db.table('auth')
-    authTable.find({
-        userId
-    }).then(data => {
-        let folderTree = {
-            name: path.basename(baseDirector),
-            file: [],
-            folder: []
+    let folderTree = {
+        name: path.basename(baseDirector),
+        file: [],
+        folder: []
+    }
+    commonService.validAdmin(userId).then(isAdmin => {
+        if (isAdmin) {
+            let fullPath = baseDirector
+            fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                result.status = true
+                result.data = folderTree
+                done(result)
+            })
+        } else {
+            let authTable = db.table('auth')
+            return authTable.find({
+                userId
+            })
         }
+    }).then(data => {
         if (data && data.length >= 0) {
             data.forEach(item => {
                 let authFolder = item.folder
@@ -63,6 +74,7 @@ function authFolder(opts, userId, done) {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
         done(result)
     })
+
 }
 
 function getFolderInfo(folderTree, root, authFolder, auth) {
