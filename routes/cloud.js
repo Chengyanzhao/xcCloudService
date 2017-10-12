@@ -7,6 +7,11 @@ var pool = require('../bin/connection/mysqlConn')
 var fsUtil = require('../bin/util/fsUtil')
 const cloudService = require('../service/cloudService')
 
+var multer = require('multer')
+var upload = multer({
+    dest: 'upload/'
+})
+
 // 根目录
 var baseDirector = config.Config.getInstance().baseFolder
 // 获取目录树
@@ -53,6 +58,16 @@ router.post('/renameFolder', (req, res, next) => {
         res.json(result)
     })
 })
+/**
+ * 下载文件夹
+ * @param {String} folder 下载的文件夹
+ */
+router.post('/downloadFolder', (req, res, next) => {
+    let userId = req.userId
+    cloudService.renameFolder(userId, req.body, result => {
+        res.json(result)
+    })
+})
 // 文件夹属性
 router.post('/propertyFolder', (req, res, next) => {
     let userId = req.userId
@@ -62,8 +77,11 @@ router.post('/propertyFolder', (req, res, next) => {
 })
 /** --------------- 文件接口 ---------------- */
 // 上传文件
-router.post('/uploadFile', (req, res, next) => {
+router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
     let userId = req.userId
+    if (!req.file) {
+
+    }
 })
 // 下载文件
 router.post('/downloadFile', (req, res, next) => {
