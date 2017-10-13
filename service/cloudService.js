@@ -260,7 +260,7 @@ function downloadFile(userId, opts) {
     if (!validaUtil.vString(filePath)) {
         return ''
     }
-    let rootPath = path.resolve(path.dirname(baseDirector), filePath)
+    let rootPath = path.resolve(baseDirector, filePath)
     return fs.existsSync(rootPath) ? rootPath : ''
 
     fs.exists(rootPath, function (exist) {
