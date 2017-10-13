@@ -103,7 +103,17 @@ router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
 router.get('/downloadFile', (req, res, next) => {
     let userId = req.userId
     let opts = req.query
-    cloudService.downloadFile(userId, opts, res)
+    let filePath = cloudService.downloadFile(userId, opts)
+    if (filePath) {
+        res.set({
+            'Content-Type': 'application/octet-stream',
+            "Content-Disposition": "attachment;filename=" + encodeURI(path.basename(filePath))
+        })
+        res.download(filePath)
+    } else {
+        res.send("file not exist!");
+        res.end();
+    }
 })
 // 重命名文件
 router.post('/renameFile', (req, res, next) => {
@@ -116,6 +126,12 @@ router.post('/renameFile', (req, res, next) => {
 router.post('/deleteFile', (req, res, next) => {
     let userId = req.userId
     cloudService.deleteFile(userId, req.body, result => {
+        res.json(result)
+    })
+})
+// 文件属性
+router.post('/attrFile', (req, res, next) => {
+    cloudService.attrFile(req.body, result => {
         res.json(result)
     })
 })
