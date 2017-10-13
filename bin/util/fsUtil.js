@@ -14,9 +14,9 @@ var walk = function (dir, authfolderData, done) {
             fs.stat(file, function (err, stat) {
                 if (stat && stat.isDirectory()) {
                     var childItem = {
-                        name: file
+                        name: path.basename(file)
                     }
-                    authfolderData.folder.push(childItem)
+                    authfolderData.folder ? authfolderData.folder.push(childItem) : authfolderData.folder = [childItem]
                     walk(file, childItem, function (err, res) {
                         // authfolderData = authfolderData.concat(res);
                         if (!--pending) done(null, authfolderData);

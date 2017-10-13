@@ -21,15 +21,26 @@ function authFolder(opts, userId, done) {
     let result = {
         status: false
     }
-    let authTable = db.table('auth')
-    authTable.find({
-        userId
-    }).then(data => {
-        let folderTree = {
-            name: path.basename(baseDirector),
-            file: [],
-            folder: []
+    let folderTree = {
+        name: path.basename(baseDirector),
+        file: [],
+        folder: []
+    }
+    commonService.validAdmin(userId).then(isAdmin => {
+        if (isAdmin) {
+            let fullPath = baseDirector
+            fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                result.status = true
+                result.data = folderTree
+                done(result)
+            })
+        } else {
+            let authTable = db.table('auth')
+            return authTable.find({
+                userId
+            })
         }
+    }).then(data => {
         if (data && data.length >= 0) {
             data.forEach(item => {
                 let authFolder = item.folder
@@ -63,6 +74,7 @@ function authFolder(opts, userId, done) {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
         done(result)
     })
+
 }
 
 function getFolderInfo(folderTree, root, authFolder, auth) {
@@ -236,16 +248,21 @@ function downloadFolder(userId, opts, done) {
     })
 }
 
-function propertyFolder() { }
+function propertyFolder() {}
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
 
 }
 // 下载文件
-function downloadFile(userId, opts, res, done) {
+function downloadFile(userId, opts) {
     let filePath = opts.filePath
-    let rootPath = `${baseDirector}/${filePath}`
+    if (!validaUtil.vString(filePath)) {
+        return ''
+    }
+    let rootPath = path.resolve(path.dirname(baseDirector), filePath)
+    return fs.existsSync(rootPath) ? rootPath : ''
+
     fs.exists(rootPath, function (exist) {
         if (exist) {
             let paths = filePath.split('/')
@@ -329,6 +346,36 @@ function deleteFile(userId, opts, done) {
         }
     })
 }
+// 文件属性
+function attrFile(opts, done) {
+    let result = {
+        status: false
+    }
+    let {
+        filePath
+    } = opts
+    // 参数验证
+    if (!validaUtil.vString(filePath)) {
+        result.message = '缺少参数！'
+        done(result)
+    }
+    let realPath = path.resolve(path.dirname(baseDirector), filePath)
+    if (fs.existsSync(realPath)) {
+        let stat = fs.statSync(realPath)
+        result.status = true
+        result.data = {
+            fileName: path.basename(realPath),
+            filePath: filePath,
+            fileSize: stat.size,
+            cTime: stat.ctime,
+            mTime: stat.mtime,
+            aTime: stat.atime
+        }
+    } else {
+        result.message = '此文件不存在！'
+    }
+    done(result)
+}
 module.exports = {
     authFolder,
     createFolder,
@@ -338,5 +385,6 @@ module.exports = {
     uploadFile,
     downloadFile,
     renameFile,
-    deleteFile
+    deleteFile,
+    attrFile
 }
