@@ -236,13 +236,11 @@ function downloadFolder(userId, opts, done) {
             let folderPath = path.resolve(baseFolder, delFolder)
             // 压缩zip
             // 返回前端
-            if (fs.existsSync(folderPath)) {
-                fsUtil.deleteFolder(folderPath)
-            }
+            if (fs.existsSync(folderPath)) {}
             result.status = true
             done(result)
         } else {
-            result.message = '您没有此目录下的删除目录权限！'
+            result.message = '您没有下载此目录的权限！'
             done(result)
         }
     })
@@ -255,31 +253,26 @@ function uploadFile(userId, opts, done) {
 
 }
 // 下载文件
-function downloadFile(userId, opts) {
+function downloadFile(userId, opts, done) {
+    let result = {
+        status: false
+    }
     let filePath = opts.filePath
     if (!validaUtil.vString(filePath)) {
-        return ''
+        result.message = '缺少参数！'
+        done(result)
     }
-    let rootPath = path.resolve(baseDirector, filePath)
-    return fs.existsSync(rootPath) ? rootPath : ''
-
-    fs.exists(rootPath, function (exist) {
-        if (exist) {
-            let paths = filePath.split('/')
-            let name = paths[paths.length - 1]
-            res.set({
-                'Content-Type': 'application/octet-stream',
-                "Content-Disposition": "attachment;filename=" + encodeURI(name)
-            });
-            fReadStream = fs.createReadStream(rootPath);
-            fReadStream.on("data", (chunk) => res.write(chunk, "binary"));
-            fReadStream.on("end", function () {
-                res.end();
-            });
+    let baseFolder = path.dirname(filePath)
+    // 权限判定
+    commonService.getAuthInfo(userId, baseFolder).then(auth => {
+        if (auth.admin || auth.downloadfile) {
+            let rootPath = path.resolve(baseDirector, filePath)
+            result.status = true
+            result.data = fs.existsSync(rootPath) ? rootPath : ''
         } else {
-            res.send("file not exist!");
-            res.end();
+            result.message = '您没有下载此文件的权限！'
         }
+        done(result)
     })
 }
 // 文件重命名

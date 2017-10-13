@@ -103,17 +103,24 @@ router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
 router.get('/downloadFile', (req, res, next) => {
     let userId = req.userId
     let opts = req.query
-    let filePath = cloudService.downloadFile(userId, opts)
-    if (filePath) {
-        res.set({
-            'Content-Type': 'application/octet-stream',
-            "Content-Disposition": "attachment;filename=" + encodeURI(path.basename(filePath))
-        })
-        res.download(filePath)
-    } else {
-        res.send("file not exist!");
-        res.end();
-    }
+    let filePath = cloudService.downloadFile(userId, opts, result => {
+        if (result.status === true) {
+            let filePath = result.data
+            if (filePath) {
+                res.set({
+                    'Content-Type': 'application/octet-stream',
+                    "Content-Disposition": "attachment;filename=" + encodeURI(path.basename(filePath))
+                })
+                res.download(filePath)
+            } else {
+                res.send("file not exist!");
+                res.end();
+            }
+        } else {
+            res.send(result.message);
+            res.end();
+        }
+    })
 })
 // 重命名文件
 router.post('/renameFile', (req, res, next) => {
