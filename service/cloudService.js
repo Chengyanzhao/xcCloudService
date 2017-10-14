@@ -159,26 +159,27 @@ function deleteFolder(userId, opts, done) {
         baseFolder,
         delFolder
     } = opts
-    // 参数验证
-    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(delFolder)) {
+    // 参数验证 TODO  yangchanlgu 去掉!validaUtil.vString(baseFolder) 不需要判断根目录是否为空
+    if (!validaUtil.vString(delFolder)) {
         result.message = '缺少参数！'
         done(result)
-    }
-    // 获取用户权限
-    commonService.getAuthInfo(userId, baseFolder).then(auth => {
-        // 权限判定
-        if (auth.admin || auth.deletefolder) {
-            let folderPath = path.resolve(baseDirector, baseFolder, delFolder)
-            if (fs.existsSync(folderPath)) {
-                fsUtil.deleteFolder(folderPath)
+    } else {
+        // 获取用户权限
+        commonService.getAuthInfo(userId, baseFolder).then(auth => {
+            // 权限判定
+            if (auth.admin || auth.deletefolder) {
+                let folderPath = path.resolve(baseDirector, baseFolder, delFolder)
+                if (fs.existsSync(folderPath)) {
+                    fsUtil.deleteFolder(folderPath)
+                }
+                result.status = true
+                done(result)
+            } else {
+                result.message = '您没有此目录下的删除目录权限！'
+                done(result)
             }
-            result.status = true
-            done(result)
-        } else {
-            result.message = '您没有此目录下的删除目录权限！'
-            done(result)
-        }
-    })
+        })
+    }
 }
 // 重命名文件夹
 function renameFolder(userId, opts, done) {
@@ -236,7 +237,7 @@ function downloadFolder(userId, opts, done) {
             let folderPath = path.resolve(baseFolder, delFolder)
             // 压缩zip
             // 返回前端
-            if (fs.existsSync(folderPath)) {}
+            if (fs.existsSync(folderPath)) { }
             result.status = true
             done(result)
         } else {
@@ -246,7 +247,7 @@ function downloadFolder(userId, opts, done) {
     })
 }
 
-function propertyFolder() {}
+function propertyFolder() { }
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {
