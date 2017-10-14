@@ -3,6 +3,7 @@
  */
 const path = require('path')
 const fs = require('fs')
+const fstream = require('fstream')
 const fsUtil = require('../bin/util/fsUtil')
 const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
@@ -10,6 +11,7 @@ const authCloudUtil = require('../bin/util/authCloudUtil')
 const commonService = require('./commonSevice')
 const config = require('../bin/util/configUtil')
 const validaUtil = require('../bin/util/validaUtil')
+
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
 if (!fs.existsSync(baseDirector)) {
@@ -234,14 +236,26 @@ function downloadFolder(userId, opts, done) {
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
         if (auth.admin || auth.downloadfolder) {
-            let folderPath = path.resolve(baseFolder, delFolder)
+            let folderPath = path.resolve(path.dirname(baseDirector), folder)
+            let tempName = cryptUtil.guid()
+            let output = path.resolve(process.cwd(), 'download', tempName + '.gz')
             // 压缩zip
-            // 返回前端
-            if (fs.existsSync(folderPath)) { }
-            result.status = true
-            done(result)
+            return fsUtil.compression(folderPath, output)
         } else {
             result.message = '您没有下载此目录的权限！'
+            done(result)
+        }
+    }).then(compressRes => {
+        if (compressRes.status) {
+            let outputPath = compressRes.data.output
+            result.status = true
+            result.data = {
+                filePath: fs.existsSync(outputPath) ? outputPath : '',
+                fileRealName: path.basename(folder)
+            }
+            done(result)
+        } else {
+            result.message = compressRes.message || compressRes || '系统错误，请刷新后重试！'
             done(result)
         }
     })
@@ -378,6 +392,7 @@ module.exports = {
     createFolder,
     deleteFolder,
     renameFolder,
+    downloadFolder,
     propertyFolder,
     uploadFile,
     downloadFile,

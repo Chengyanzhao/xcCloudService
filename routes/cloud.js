@@ -64,8 +64,24 @@ router.post('/renameFolder', (req, res, next) => {
  */
 router.post('/downloadFolder', (req, res, next) => {
     let userId = req.userId
-    cloudService.renameFolder(userId, req.body, result => {
-        res.json(result)
+    cloudService.downloadFolder(userId, req.body, result => {
+        if (result.status === true) {
+            let filePath = result.data.filePath
+            let fileRealName = result.data.fileRealName
+            if (filePath) {
+                res.set({
+                    'Content-Type': 'application/octet-stream',
+                    "Content-Disposition": "attachment;filename=" + encodeURI(fileRealName + path.extname(filePath))
+                })
+                res.download(filePath)
+            } else {
+                res.send("folder not exist!");
+                res.end();
+            }
+        } else {
+            res.send(result.message);
+            res.end();
+        }
     })
 })
 // 文件夹属性
