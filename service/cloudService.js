@@ -18,6 +18,15 @@ if (!fs.existsSync(baseDirector)) {
     fsUtil.mkdirSync(baseDirector)
 }
 
+let tempDownloadDir = path.resolve(process.cwd(), 'download')
+// 创建tempDownloadDir
+function createTempDownloadDir() {
+    if (!fs.existsSync(tempDownloadDir)) {
+        fsUtil.createfolder(tempDownloadDir)
+    }
+}
+createTempDownloadDir()
+
 // 获取授权fs
 function authFolder(opts, userId, done) {
     let result = {
@@ -238,7 +247,7 @@ function downloadFolder(userId, opts, done) {
         if (auth.admin || auth.downloadfolder) {
             let folderPath = path.resolve(path.dirname(baseDirector), folder)
             let tempName = cryptUtil.guid()
-            let output = path.resolve(process.cwd(), 'download', tempName + '.gz')
+            let output = path.resolve(tempDownloadDir, tempName + '.gz')
             // 压缩zip
             return fsUtil.compression(folderPath, output)
         } else {
