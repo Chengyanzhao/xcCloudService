@@ -317,21 +317,24 @@ function deleteFile(userId, opts, done) {
     }
     let {
         baseFolder,
-        delFileName
+        delFileNames
     } = opts
     // 参数验证
-    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(delFileName)) {
+    if (!validaUtil.vString(baseFolder)) {
         result.message = '缺少参数！'
         done(result)
     }
+    delFileNames = delFileNames.split('*')
     // 获取用户权限
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
         if (auth.admin || auth.deletefolder) {
-            let filePath = path.resolve(path.dirname(baseDirector), baseFolder, delFileName)
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+            delFileNames.forEach((delFileName) => {
+                let filePath = path.resolve(baseDirector, baseFolder, delFileName)
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            })
             result.status = true
             done(result)
         } else {
