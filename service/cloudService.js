@@ -3,7 +3,6 @@
  */
 const path = require('path')
 const fs = require('fs')
-const fstream = require('fstream')
 const fsUtil = require('../bin/util/fsUtil')
 const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
