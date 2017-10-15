@@ -139,20 +139,30 @@ function createFolder(userId, opts, done) {
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
         if (auth.admin || auth.createfolder) {
-            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
+            let baseFolderPath = path.resolve(baseDirector, baseFolder)
             if (!fs.existsSync(baseFolderPath)) {
                 result.message = '当前操作目录不存在，请刷新后重试！'
                 done(result)
                 return
             }
+            let name = newFolder
             let folderPath = path.resolve(baseFolderPath, newFolder)
-            if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath);
-                // 实体目录创建文件夹
-                result.status = true
-            } else {
-                result.message = '此文件夹已存在！'
+            let index = 1
+            while (fs.existsSync(folderPath)) {
+                name = `${newFolder}(${index})`
+                folderPath = path.resolve(baseFolderPath, name)
+                index++
             }
+            fs.mkdirSync(folderPath);
+            result.status = true
+            result.newName = name
+            // if (!fs.existsSync(folderPath)) {
+            //     fs.mkdirSync(folderPath);
+            //     // 实体目录创建文件夹
+            //     result.status = true
+            // } else {
+            //     result.message = '此文件夹已存在！'
+            // }
             done(result)
         } else {
             result.message = '您没有此目录下的创建目录权限！'
