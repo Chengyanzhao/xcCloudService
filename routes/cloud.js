@@ -62,18 +62,16 @@ router.post('/renameFolder', (req, res, next) => {
  * 下载文件夹
  * @param {String} folder 下载的文件夹
  */
-router.post('/downloadFolder', (req, res, next) => {
+router.get('/downloadFolder', (req, res, next) => {
     let userId = req.userId
-    cloudService.downloadFolder(userId, req.body, result => {
+    cloudService.downloadFolder(userId, req.query, result => {
         if (result.status === true) {
             let filePath = result.data.filePath
             let fileRealName = result.data.fileRealName
-            if (filePath) {
-                res.set({
-                    'Content-Type': 'application/octet-stream',
-                    "Content-Disposition": "attachment;filename=" + encodeURI(fileRealName + path.extname(filePath))
+            if (filePath && fs.existsSync(filePath)) {
+                res.download(filePath, fileRealName + path.extname(filePath), err => {
+                    fs.unlink(filePath)
                 })
-                res.download(filePath)
             } else {
                 res.send("folder not exist!");
                 res.end();
