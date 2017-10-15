@@ -1,8 +1,6 @@
 var fs = require('fs')
 var path = require('path')
-var fstream = require('fstream')
-var tar = require('tar');
-let zlib = require('zlib');
+var archiver = require('archiver');
 
 var walk = function (dir, authfolderData, done) {
     fs.readdir(dir, function (err, list) {
@@ -85,55 +83,47 @@ function clearFolder(dirPath) {
     }
 }
 
-// 压缩，生成tar.gz
-function compression(input, output) {
+// 压缩，生成.zip
+function compression(inputPath, outputPath) {
     return new Promise((resolve, reject) => {
         let result = {
             status: 0
         }
-        if (!fs.existsSync(input)) {
+        if (!fs.existsSync(inputPath)) {
             result.message = '压缩资源不存在！'
             reject(result)
         } else {
-            fs.stat(input, function (err, stat) {
+            fs.stat(inputPath, function (err, stat) {
                 if (err || !stat) {
                     result.message = '无法获取压缩资源！'
                     reject(result)
                 }
-                var r, w = fstream.Writer(output)
+                var output = fs.createWriteStream(outputPath);
+                var archive = archiver('zip', {
+                    zlib: { level: 9 } // Sets the compression level.
+                });
+                output.on('close', function () {
+                    result.status = 1
+                    result.data = {
+                        output: outputPath
+                    }
+                    resolve(result);
+                });
+                archive.on('error', function (err) {
+                    result.message = '压缩资源失败！'
+                    reject(result)
+                });
+                archive.pipe(output);
                 if (stat && stat.isDirectory()) {
-                    // 文件夹
-                    r = fstream.Reader({
-                        'path': input,
-                        'type': 'Directory'
-                    });
+                    archive.directory(inputPath + '\\', path.basename(inputPath));
+                    archive.finalize();
                 } else if (stat && stat.isFile()) {
-                    // 文件
-                    r = fstream.Reader({
-                        'path': input,
-                        'type': 'File'
-                    });
+                    archive.append(fs.createReadStream(inputPath), { name: path.basename(inputPath) });
+                    archive.finalize();
                 } else {
                     result.message = '压缩资源失败！'
                     reject(result)
                 }
-                r.pipe(tar.Pack({
-                    noRepository: true,
-                    fromBase: true
-                }))
-                    .pipe(zlib.Gzip())
-                    .pipe(w);
-                r.on('end', () => {
-                    result.status = 1
-                    result.data = {
-                        output: output
-                    }
-                    resolve(result);
-                })
-                r.on('error', (err) => {
-                    result.message = '压缩资源失败！'
-                    reject(result)
-                })
             })
         }
     })
