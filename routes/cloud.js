@@ -84,8 +84,7 @@ router.get('/downloadFolder', (req, res, next) => {
 })
 // 文件夹属性
 router.post('/propertyFolder', (req, res, next) => {
-    let userId = req.userId
-    cloudService.propertyFolder(userId, opts, result => {
+    cloudService.propertyFolder(req.body, result => {
         res.json(result)
     })
 })

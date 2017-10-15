@@ -268,8 +268,34 @@ function downloadFolder(userId, opts, done) {
         }
     })
 }
-
-function propertyFolder() { }
+// 文件夹属性
+function propertyFolder(opts, done) {
+    /**
+     *  文件夹占用空间、文件夹个数、文件个数
+     */
+    let result = {
+        status: false
+    }
+    let {
+        folderPath
+    } = opts
+    // 参数验证
+    if (!validaUtil.vString(folderPath)) {
+        result.message = '缺少参数！'
+        done(result)
+    }
+    let realPath = path.resolve(path.dirname(baseDirector), folderPath)
+    if (fs.existsSync(realPath)) {
+        fsUtil.getFolderProperty(realPath, data => {
+            result.status = true
+            result.data = data
+            done(result) 
+        })
+    } else {
+        result.message = '此文件不存在！'
+        done(result)
+    }
+}
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 function uploadFile(userId, opts, done) {

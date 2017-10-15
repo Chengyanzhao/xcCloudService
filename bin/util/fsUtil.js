@@ -129,10 +129,56 @@ function compression(inputPath, outputPath) {
     })
 }
 
+// 获取文件夹信息
+function getFolderProperty(folderPath, done) {
+    let result = {
+        folderCount: 0,
+        fileCount: 0,
+        size: 0
+    }
+    if (folderPath && fs.existsSync(folderPath)) {
+        fs.readdir(folderPath, function (err, list) {
+            if (list && list.length) {
+                let pending = list.length
+                list.forEach(function (file) {
+                    file = path.resolve(folderPath, file);
+                    let stat = fs.statSync(file)
+                    if (stat && stat.isDirectory()) {
+                        result.folderCount++
+                        getFolderProperty(file, childResult => {
+                            result.folderCount += childResult.folderCount
+                            result.fileCount += childResult.fileCount
+                            result.size += childResult.size
+                            if (!--pending) {
+                                done(result)
+                            }
+                        })
+                    } else if (stat && stat.isFile()) {
+                        result.fileCount++
+                        result.size += stat.size
+                        if (!--pending) {
+                            done(result)
+                        }
+                    } else {
+                        if (!--pending) {
+                            done(result)
+                        }
+                    }
+                })
+            } else {
+                done(result)
+            }
+        })
+    } else {
+        done(result)
+    }
+}
+
 module.exports = {
     walk,
     mkdirSync,
     deleteFolder,
     clearFolder,
-    compression
+    compression,
+    getFolderProperty
 }
