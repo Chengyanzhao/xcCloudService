@@ -247,7 +247,7 @@ function downloadFolder(userId, opts, done) {
         if (auth.admin || auth.downloadfolder) {
             let folderPath = path.resolve(path.dirname(baseDirector), folder)
             let tempName = cryptUtil.guid()
-            let output = path.resolve(tempDownloadDir, tempName + '.gz')
+            let output = path.resolve(tempDownloadDir, tempName + '.zip')
             // 压缩zip
             return fsUtil.compression(folderPath, output)
         } else {
