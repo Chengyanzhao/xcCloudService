@@ -212,29 +212,30 @@ function renameFolder(userId, opts, done) {
         newName
     } = opts
     // 参数验证
-    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
+    if (!validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
         result.message = '缺少参数！'
         done(result)
-    }
-    // 权限判定
-    commonService.getAuthInfo(userId, baseFolder).then(auth => {
-        if (auth.admin || auth.renamefolder) {
-            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
-            let oldPath = path.resolve(baseFolderPath, oldName)
-            let newPath = path.resolve(baseFolderPath, newName)
-            if (fs.existsSync(oldPath)) {
-                fs.renameSync(oldPath, newPath)
-                result.status = true
-            } else {
-                result.message = '此文件夹不存在，请刷新后重试！'
-            }
+    } else {
+        // 权限判定
+        commonService.getAuthInfo(userId, baseFolder).then(auth => {
+            if (auth.admin || auth.renamefolder) {
+                let baseFolderPath = path.resolve(baseDirector, baseFolder)
+                let oldPath = path.resolve(baseFolderPath, oldName)
+                let newPath = path.resolve(baseFolderPath, newName)
+                if (fs.existsSync(oldPath)) {
+                    fs.renameSync(oldPath, newPath)
+                    result.status = true
+                } else {
+                    result.message = '此文件夹不存在，请刷新后重试！'
+                }
 
-            done(result)
-        } else {
-            result.message = '您没有此文件夹的重命名权限！'
-            done(result)
-        }
-    })
+                done(result)
+            } else {
+                result.message = '您没有此文件夹的重命名权限！'
+                done(result)
+            }
+        })
+    }
 }
 // 下载文件夹
 function downloadFolder(userId, opts, done) {
@@ -319,28 +320,29 @@ function renameFile(userId, opts, done) {
         newName
     } = opts
     // 参数验证
-    if (!validaUtil.vString(baseFolder) || !validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
+    if (!validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
         result.message = '缺少参数！'
         done(result)
-    }
-    // 权限判定
-    commonService.getAuthInfo(userId, baseFolder).then(auth => {
-        if (auth.admin || auth.renamefile) {
-            let baseFolderPath = path.resolve(path.dirname(baseDirector), baseFolder)
-            let oldPath = path.resolve(baseFolderPath, oldName)
-            let newPath = path.resolve(baseFolderPath, newName)
-            if (fs.existsSync(oldPath)) {
-                fs.renameSync(oldPath, newPath)
-                result.status = true
+    } else {
+        // 权限判定
+        commonService.getAuthInfo(userId, baseFolder).then(auth => {
+            if (auth.admin || auth.renamefile) {
+                let baseFolderPath = path.resolve(baseDirector, baseFolder)
+                let oldPath = path.resolve(baseFolderPath, oldName)
+                let newPath = path.resolve(baseFolderPath, newName)
+                if (fs.existsSync(oldPath)) {
+                    fs.renameSync(oldPath, newPath)
+                    result.status = true
+                } else {
+                    result.message = '此文件不存在，请刷新后重试！'
+                }
+                done(result)
             } else {
-                result.message = '此文件不存在，请刷新后重试！'
+                result.message = '您没有此文件的重命名权限！'
+                done(result)
             }
-            done(result)
-        } else {
-            result.message = '您没有此文件的重命名权限！'
-            done(result)
-        }
-    })
+        })
+    }
 }
 // 删除文件
 function deleteFile(userId, opts, done) {
