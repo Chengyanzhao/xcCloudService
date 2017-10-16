@@ -10,6 +10,9 @@ var pool = mysql.createPool({
 });
 pool.getConnection(function (err, connection) {
     if (err || !connection)
-        throw err;
+        throw err
+    else {
+        console.log('mysql is connected!')
+    }
 })
 module.exports = pool
