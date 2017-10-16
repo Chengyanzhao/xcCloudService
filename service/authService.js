@@ -26,6 +26,7 @@ function folderAuth(opts, done) {
     })
 }
 
+// 添加/更新授权人员
 function addOrUpdateAuth(opts, done) {
     let result = {
         status: false
@@ -78,6 +79,11 @@ function addOrUpdateAuth(opts, done) {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
         done(result)
     })
+}
+
+// 删除授权人员
+function deleteAuthUser(opts, done) {
+
 }
 
 module.exports = {

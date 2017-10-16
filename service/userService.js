@@ -74,6 +74,9 @@ function signUp(userId, opts, done) {
         })
     }).then(data => {
         result.status = true
+        result.data = {
+            userName: userName
+        }
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
@@ -103,6 +106,7 @@ function signIn(opts, done) {
         let userId = data.userid
         let token = 'Bearer ' + cryptUtil.encodeToken(userId)
         result.token = token
+        result.userName = userName
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
