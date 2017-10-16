@@ -165,13 +165,10 @@ function deleteUser(opts, done) {
     })
 }
 
-function userInfo(opts, done) {
+function userInfo(userId, done) {
     let result = {
         status: false
     }
-    let {
-        userId
-    } = opts
     let userTable = db.table('user')
     userTable.findOne({
         userId
