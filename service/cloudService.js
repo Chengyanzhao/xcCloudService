@@ -280,7 +280,7 @@ function downloadFolder(userId, opts, done) {
     })
 }
 // 文件夹属性
-function propertyFolder(opts, done) {
+function attrFolder(opts, done) {
     /**
      *  文件夹占用空间、文件夹个数、文件个数
      */
@@ -439,7 +439,7 @@ module.exports = {
     deleteFolder,
     renameFolder,
     downloadFolder,
-    propertyFolder,
+    attrFolder,
     uploadFile,
     downloadFile,
     renameFile,

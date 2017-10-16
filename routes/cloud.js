@@ -83,8 +83,8 @@ router.get('/downloadFolder', (req, res, next) => {
     })
 })
 // 文件夹属性
-router.post('/propertyFolder', (req, res, next) => {
-    cloudService.propertyFolder(req.body, result => {
+router.post('/attrFolder', (req, res, next) => {
+    cloudService.attrFolder(req.body, result => {
         res.json(result)
     })
 })
