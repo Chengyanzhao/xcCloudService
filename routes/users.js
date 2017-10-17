@@ -3,6 +3,7 @@ var router = express.Router()
 var cryptUtil = require('../bin/util/cryptUtil')
 var userService = require('../service/userService')
 var logSercice = require('../service/logService')
+var checkAdmin = require('../bin/middleware/checkAdmin')
 
 /** 处理管理员账户 */
 userService.adminAccount()
@@ -24,7 +25,7 @@ router.get('/', function (req, res, next) {
  * @param {String} mobilephone 手机
  * @param {String} telephone 电话
  */
-router.post('/signUp', function (req, res, next) {
+router.post('/signUp', checkAdmin, function (req, res, next) {
   let userId = req.userId
   let opts = req.body;
   userService.signUp(userId, opts, result => {
@@ -43,7 +44,7 @@ router.post('/signIn', function (req, res, next) {
   let opts = req.body
   userService.signIn(opts, result => {
     if (result.status === true) {
-      logSercice.log(result.userName, 'logIn', result.status === false ? result.message : '')
+      logSercice.log(result.userId, 'logIn', result.status === false ? result.message : '')
     }
     res.json(result);
   })
@@ -70,14 +71,14 @@ router.get('/userInfo', function (req, res, next) {
   })
 })
 // 获取用户信息
-router.get('/getUserByOpts', function (req, res, next) {
+router.get('/getUserByOpts', checkAdmin, function (req, res, next) {
   let opts = req.query
   userService.getUserByOpts(opts, result => {
     res.json(result)
   })
 })
 // 更新用户信息
-router.post('/updateUser', function (req, res, next) {
+router.post('/updateUser', checkAdmin, function (req, res, next) {
   let opts = req.body
   userService.updateUser(opts, result => {
     logSercice.log(userId, 'updateUserInfo', result.status === false ? result.message : '')
@@ -85,11 +86,11 @@ router.post('/updateUser', function (req, res, next) {
   })
 })
 // 删除用户
-router.post('/deleteUser', function (req, res, next) {
+router.post('/deleteUser', checkAdmin, function (req, res, next) {
   let userId = req.userId
   let opts = req.body
   userService.deleteUser(userId, opts, result => {
-    logSercice.log(userId, 'deleteUser', result.status === false ? result.message : result.userName)
+    logSercice.log(userId, 'deleteUser', result.status === false ? result.message : `deleteuser:${result.userName}`)
     res.json(result)
   })
 })
