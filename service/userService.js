@@ -106,7 +106,7 @@ function signIn(opts, done) {
         let userId = data.userid
         let token = 'Bearer ' + cryptUtil.encodeToken(userId)
         result.token = token
-        result.userName = userName
+        result.userId = userId
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
@@ -166,7 +166,7 @@ function deleteUser(userId, opts, done) {
     }).then(data => {
         userName = data.username
         return userTable.remove({
-            userid: userId
+            userid: deleteUserId
         })
     }).then(() => {
         result.status = true
