@@ -7,7 +7,6 @@ var logSercice = require('../service/logService')
 router.get('/getOrgs', function (req, res, next) {
   let opts = req.query
   orgService.getOrgs(opts, result => {
-    logSercice.log(req.userId, 'getOrgs', result.status === false ? result.message : '')
     res.json(result)
   })
 })
