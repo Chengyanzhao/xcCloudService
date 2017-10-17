@@ -83,10 +83,37 @@ function addOrUpdateAuth(opts, done) {
 
 // 删除授权人员
 function deleteAuthUser(opts, done) {
-
+    let result = {
+        status: false
+    }
+    let {
+        userId,
+        folder
+    } = opts
+    let userName
+    let userTable = db.table('user')
+    let authTable = db.table('auth')
+    userTable.findOne({
+        userid: userId
+    }).then(data => {
+        userName = data.username
+        return authTable.remove({
+            userid: userId,
+            folder: folder
+        })
+    }).then(() => {
+        result.status = true
+        result.userName = userName
+        result.folder = folder
+        done(result)
+    }).catch(error => {
+        result.message = error && typeof error === 'string' ? error : '系统错误！'
+        done(result)
+    })
 }
 
 module.exports = {
     folderAuth,
-    addOrUpdateAuth
+    addOrUpdateAuth,
+    deleteAuthUser
 }
