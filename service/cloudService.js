@@ -295,7 +295,7 @@ function attrFolder(opts, done) {
         result.message = '缺少参数！'
         done(result)
     }
-    let realPath = path.resolve(path.dirname(baseDirector), folderPath)
+    let realPath = path.resolve(baseDirector, folderPath)
     if (fs.existsSync(realPath)) {
         fsUtil.getFolderProperty(realPath, data => {
             result.status = true
@@ -416,7 +416,7 @@ function attrFile(opts, done) {
         result.message = '缺少参数！'
         done(result)
     }
-    let realPath = path.resolve(path.dirname(baseDirector), filePath)
+    let realPath = path.resolve(baseDirector, filePath)
     if (fs.existsSync(realPath)) {
         let stat = fs.statSync(realPath)
         result.status = true
