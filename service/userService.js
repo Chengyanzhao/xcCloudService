@@ -30,7 +30,7 @@ function adminAccount() {
 
     })
 }
-
+// 添加用户
 function signUp(userId, opts, done) {
     let result = {
         status: false
@@ -83,7 +83,7 @@ function signUp(userId, opts, done) {
         done(result)
     })
 }
-
+// 登录
 function signIn(opts, done) {
     let result = {
         status: false
@@ -113,7 +113,7 @@ function signIn(opts, done) {
         done(result)
     })
 }
-
+// 更新用户信息
 function updateUser(opts, done) {
     let result = {
         status: false
@@ -151,24 +151,32 @@ function updateUser(opts, done) {
         })
 }
 
-function deleteUser(opts, done) {
+// 删除用户
+function deleteUser(userId, opts, done) {
     let result = {
         status: false
     }
     let {
-        id
+        deleteUserId
     } = opts
+    let userName
     let userTable = db.table('user')
-    userTable.remove({
-        id
-    }).then((res) => {
+    userTable.findOne({
+        userid: deleteUserId
+    }).then(data => {
+        userName = data.username
+        return userTable.remove({
+            userid: userId
+        })
+    }).then(() => {
         result.status = true
+        result.userName = userName
         done(result)
     }).catch((res) => {
         done(result)
     })
 }
-
+// 个人信息
 function userInfo(userId, done) {
     let result = {
         status: false
@@ -185,7 +193,7 @@ function userInfo(userId, done) {
         done(result)
     })
 }
-
+// 修改密码
 function updatePassword(userId, opts, done) {
     let result = {
         status: false

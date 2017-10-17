@@ -66,7 +66,6 @@ router.post('/updatePassword', function (req, res, next) {
 router.get('/userInfo', function (req, res, next) {
   let userId = req.userId
   userService.userInfo(userId, result => {
-    logSercice.log(userId, 'personalInfo', result.status === false ? result.message : '')
     res.json(result)
   })
 })
@@ -74,10 +73,10 @@ router.get('/userInfo', function (req, res, next) {
 router.get('/getUserByOpts', function (req, res, next) {
   let opts = req.query
   userService.getUserByOpts(opts, result => {
-    logSercice.log(userId, 'userInfo', result.status === false ? result.message : '')
     res.json(result)
   })
 })
+// 更新用户信息
 router.post('/updateUser', function (req, res, next) {
   let opts = req.body
   userService.updateUser(opts, result => {
@@ -85,10 +84,12 @@ router.post('/updateUser', function (req, res, next) {
     res.json(result)
   })
 })
+// 删除用户
 router.post('/deleteUser', function (req, res, next) {
+  let userId = req.userId
   let opts = req.body
-  userService.deleteUser(opts, result => {
-    logSercice.log(userId, 'deleteUser', result.status === false ? result.message : '')
+  userService.deleteUser(userId, opts, result => {
+    logSercice.log(userId, 'deleteUser', result.status === false ? result.message : result.userName)
     res.json(result)
   })
 })
