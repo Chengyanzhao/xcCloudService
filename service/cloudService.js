@@ -297,10 +297,16 @@ function attrFolder(opts, done) {
     }
     let realPath = path.resolve(baseDirector, folderPath)
     if (fs.existsSync(realPath)) {
+        let stat = fs.statSync(realPath)
         fsUtil.getFolderProperty(realPath, data => {
             result.status = true
-            result.data = data
-            done(result) 
+            result.data = Object.assign({}, data, {
+                filePath: folderPath,
+                fileSize: data.size,
+                birthtime: stat.birthtime
+            })
+
+            done(result)
         })
     } else {
         result.message = '此文件不存在！'
