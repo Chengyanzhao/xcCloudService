@@ -57,6 +57,34 @@ function editOrg(opts, done) {
   })
 }
 /**
+ * 删除组织机构
+ * 
+ * @param {any} opts 
+ * @param {any} done 
+ */
+function deleteOrg(opts, done) {
+  let deleteOrgIds = [+opts.orgid]
+  let orgTable = db.table('organization')
+  let queryWhere = { id: opts.orgid }
+  orgTable.findOne(queryWhere).then(data => {
+    let orgId = data.id
+    return getChildOrg(orgId)
+  }).then(childOrgs => {
+    deleteOrgIds = deleteOrgIds.concat(childOrgs)
+    return orgTable.remove({
+      id: deleteOrgIds
+    })
+  }).then(() => {
+    getOrgs(opts, done)
+  }).catch((res) => {
+    let result = {
+      status: false,
+      data: '更新失败'
+    }
+    done(result)
+  })
+}
+/**
  * 构建组织机构的属性结构
  * @param {any} data 
  */
@@ -86,8 +114,33 @@ function initOrgTree(data) {
   }
   return tree
 }
+
+/**
+ * 获取子组织id
+ * @param {Array} parentOrgIds
+ */
+function getChildOrg(parentOrgIds) {
+  return new Promise((resolve, reject) => {
+    let result = []
+    let orgTable = db.table('organization')
+    let queryWhere = { orgpid: parentOrgIds }
+    orgTable.find(queryWhere).then(data => {
+      if (data && data.length) {
+        let childOrgIds = data.map(orgItem => {
+          return orgItem.id
+        })
+        getChildOrg(childOrgIds).then(res => {
+          resolve(childOrgIds.concat(res))
+        })
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
 module.exports = {
   getOrgs,
   addOrg,
-  editOrg
+  editOrg,
+  deleteOrg
 }
