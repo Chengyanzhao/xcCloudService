@@ -4,6 +4,8 @@ var cryptUtil = require('../bin/util/cryptUtil')
 var userService = require('../service/userService')
 var logSercice = require('../service/logService')
 var checkAdmin = require('../bin/middleware/checkAdmin')
+const token = require('../bin/middleware/token')
+router.use(token);
 
 /** 处理管理员账户 */
 userService.adminAccount()

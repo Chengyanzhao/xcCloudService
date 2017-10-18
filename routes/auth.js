@@ -4,6 +4,8 @@ const db = require('../bin/database/db')
 const authService = require('../service/authService')
 const logSercice = require('../service/logService')
 const checkAdmin = require('../bin/middleware/checkAdmin')
+const token = require('../bin/middleware/token')
+router.use(token);
 
 // 获取目录的授权信息
 router.get('/folderAuth', checkAdmin, (req, res, next) => {

@@ -3,6 +3,8 @@ var router = express.Router()
 var orgService = require('../service/orgService')
 var logSercice = require('../service/logService')
 var checkAdmin = require('../bin/middleware/checkAdmin')
+const token = require('../bin/middleware/token')
+router.use(token);
 
 // 获取组织机构
 router.get('/getOrgs', checkAdmin, function (req, res, next) {

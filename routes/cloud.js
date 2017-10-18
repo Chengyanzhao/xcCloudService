@@ -6,6 +6,8 @@ var config = require('../bin/util/configUtil')
 var pool = require('../bin/connection/mysqlConn')
 var fsUtil = require('../bin/util/fsUtil')
 const cloudService = require('../service/cloudService')
+const token = require('../bin/middleware/token')
+router.use(token);
 
 var multer = require('multer')
 var upload = multer({
