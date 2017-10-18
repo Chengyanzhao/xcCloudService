@@ -31,7 +31,7 @@ proto.find = function (query) {
     if (query) {
         for (let key in query) {
             let value = query[key]
-            if (!value.length) {
+            if (Object.prototype.toString.call(value) !== '[object Array]') {
                 let condition = ` ${key}='${value}'`
                 whereArr.push(condition)
             } else {
@@ -115,7 +115,7 @@ proto.remove = function (query) {
     if (query) {
         for (let key in query) {
             let value = query[key]
-            if (!value.length) {
+            if (Object.prototype.toString.call(value) !== '[object Array]') {
                 let condition = ` ${key}='${value}'`
                 whereArr.push(condition)
             } else {
