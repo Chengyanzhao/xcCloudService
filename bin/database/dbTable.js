@@ -31,8 +31,13 @@ proto.find = function (query) {
     if (query) {
         for (let key in query) {
             let value = query[key]
-            let condition = ` ${key}='${value}'`
-            whereArr.push(condition)
+            if (!value.length) {
+                let condition = ` ${key}='${value}'`
+                whereArr.push(condition)
+            } else {
+                let condition = ` ${key} in ('${value.join("','")}')`
+                whereArr.push(condition)
+            }
         }
     }
     where += whereArr.join(' and ')
@@ -110,8 +115,13 @@ proto.remove = function (query) {
     if (query) {
         for (let key in query) {
             let value = query[key]
-            let condition = ` ${key}='${value}'`
-            whereArr.push(condition)
+            if (!value.length) {
+                let condition = ` ${key}='${value}'`
+                whereArr.push(condition)
+            } else {
+                let condition = ` ${key} in ('${value.join("','")}')`
+                whereArr.push(condition)
+            }
         }
     }
     where += whereArr.join(' and ')
