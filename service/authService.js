@@ -44,10 +44,16 @@ function addOrUpdateAuth(opts, done) {
         filedelete = 0,
         filerename = 0
     } = opts
+    let userName
     let authTable = db.table('auth')
-    authTable.findOne({
-        folder,
-        userId
+    userTable.findOne({
+        userid: userId
+    }).then(data => {
+        userName = data.username
+        return authTable.findOne({
+            folder,
+            userId
+        })
     }).then(data => {
         let insertData = {
             userId,
@@ -73,7 +79,9 @@ function addOrUpdateAuth(opts, done) {
             return Promise.reject('密码错误！')
         }
     }).then(results => {
-        result.status === true
+        result.status = true
+        result.userName = userName
+        result.folder = folder
         done(result)
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
