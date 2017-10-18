@@ -114,13 +114,10 @@ function signIn(opts, done) {
     })
 }
 // 更新用户信息
-function updateUser(opts, done) {
+function updateUser(userId, opts, done) {
     let result = {
         status: false
     }
-    let {
-        id
-    } = opts
     let {
         userName,
         passWord,
@@ -133,7 +130,7 @@ function updateUser(opts, done) {
     } = opts
     let userTable = db.table('user')
     userTable.update({
-        id
+        userId
     }, {
             username: userName,
             password: passWord,
