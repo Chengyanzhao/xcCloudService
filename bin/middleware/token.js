@@ -14,18 +14,27 @@ function token(req, res, next) {
     if (authorization && authorization.startsWith('Bearer '))
         token = authorization.substr(7)
     if (!token) {
-        res.redirect('/login')
+        res.json({
+            status: false,
+            data: 'login'
+        })
     } else {
         crypt.verifyToken(token, secret).then(result => {
             if (result.status !== 'success' || !result.decoded) {
-                res.redirect('/login')
+                res.json({
+                    status: false,
+                    data: 'login'
+                })
                 return
             }
             let decoded = result.decoded
             let now = new Date().getTime()
             let timeOut = now > decoded.exp * 1000
             if (timeOut) {
-                res.redirect('/login')
+                res.json({
+                    status: false,
+                    data: 'login'
+                })
             } else {
                 req.userId = decoded.userId
                 res.setHeader('authorization', 'Bearer ' + crypt.encodeToken(req.userId))
