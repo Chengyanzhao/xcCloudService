@@ -27,5 +27,13 @@ router.post('/editOrg', checkAdmin, function (req, res, next) {
     res.json(result)
   })
 })
+// 删除组织机构
+router.post('/deleteOrg', checkAdmin, function (req, res, next) {
+  let opts = req.body
+  orgService.deleteOrg(opts, result => {
+    logSercice.log(req.userId, 'editOrg', result.status === false ? result.message : `orgName:${opts.orgname}`)
+    res.json(result)
+  })
+})
 
 module.exports = router
