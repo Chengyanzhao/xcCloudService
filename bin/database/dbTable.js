@@ -137,8 +137,7 @@ proto.save = function () {
     return dbBase.execute(sqlStr);
 }
 
-proto.query = function () {
-    let sqlStr = '';
+proto.query = function (sqlStr) {
     return dbBase.execute(sqlStr);
 }
 
