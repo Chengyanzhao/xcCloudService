@@ -9,7 +9,7 @@ router.use(token);
 
 // 获取目录的授权信息
 router.get('/folderAuth', checkAdmin, (req, res, next) => {
-  authService.folderAuth(req.body, result => {
+  authService.folderAuth(req.query, result => {
     res.json(result)
   })
 })
@@ -36,8 +36,9 @@ router.post('/deleteUser', checkAdmin, (req, res, next) => {
 
 // 修改授权信息
 router.post('/updateAuth', checkAdmin, (req, res, next) => {
-  authService.addOrUpdateAuth(userId, req.body, results => {
+  authService.addOrUpdateAuth(req.body, result => {
     logSercice.log(req.userId, 'updateAuth', result.status === false ? result.message : '')
     res.json(result);
   })
 })
+module.exports = router

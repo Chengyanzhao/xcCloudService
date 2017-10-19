@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var cloud = require('./routes/cloud');
+var auth = require('./routes/auth');
 var org = require('./routes/org')
 var app = express();
 
@@ -30,6 +31,7 @@ app.use('/', index);
 app.use('/users', users);
 app.use('/cloud', cloud);
 app.use('/org', org)
+app.use('/auth', auth)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   var err = new Error('Not Found');

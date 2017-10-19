@@ -39,12 +39,13 @@ function addOrUpdateAuth(opts, done) {
         folderdelete = 0,
         folderupload = 0,
         folderdownload = 0,
-        folderename = 0,
+        folderrename = 0,
         filedownload = 0,
         filedelete = 0,
         filerename = 0
     } = opts
     let userName
+    let userTable = db.table('user')
     let authTable = db.table('auth')
     userTable.findOne({
         userid: userId
@@ -63,12 +64,12 @@ function addOrUpdateAuth(opts, done) {
             folderdelete,
             folderupload,
             folderdownload,
-            folderename,
+            folderrename,
             filedownload,
             filedelete,
             filerename
         }
-        if (!data || !data.length || data.length === 0) {
+        if (!data) {  // || !data.length || data.length === 0
             // 此目录 userId 不存在，则为新授权
             return authTable.add(insertData)
         } else {

@@ -60,14 +60,15 @@ proto.like = function (query) {
 }
 proto.findOne = function (query) {
     let where = query ? 'WHERE' : ''
+    let whereArr = []
     if (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key}='${value}'`
-            where += condition
+            whereArr.push(condition)
         }
     }
-
+    where += whereArr.join(' and ')
     let sqlStr = `SELECT * FROM ${this.tableName} ${where} LIMIT 1`;
     return dbBase.execute(sqlStr).then(data => {
         return new Promise(resolve => {
@@ -82,11 +83,12 @@ proto.findOne = function (query) {
 
 proto.update = function (query, updateData) {
     let where = query ? 'WHERE' : ''
+    let whereArr = []
     if (query) {
         for (let key in query) {
             let value = query[key]
             let condition = ` ${key}='${value}'`
-            where += condition
+            whereArr.push(condition)
         }
     }
     let updateStrArr = []
@@ -98,6 +100,7 @@ proto.update = function (query, updateData) {
         }
     }
     let updateStr = updateStrArr.join(',')
+    where += whereArr.join(' and ')
     let sqlStr = `UPDATE ${this.tableName} SET ${updateStr} ${where}`;
     return dbBase.execute(sqlStr);
     /**
