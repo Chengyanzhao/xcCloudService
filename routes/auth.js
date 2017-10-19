@@ -15,7 +15,7 @@ router.get('/folderAuth', checkAdmin, (req, res, next) => {
 })
 // 新增授权人员
 router.post('/addUser', checkAdmin, (req, res, next) => {
-  authService.addOrUpdateAuth(userId, req.body, results => {
+  authService.addOrUpdateAuth(req.body, results => {
     logSercice.log(req.userId, 'addOrUpdateAuth', result.status === false ? result.message : `username:${result.userName},folder:${result.folder}`)
     res.json(result);
   })
