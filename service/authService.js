@@ -15,7 +15,7 @@ function folderAuth(opts, done) {
         folder
     } = opts
     let authTable = db.table('auth')
-    let sqlString = `select user.userid AS userid, user.userName AS username, auth.* from user, auth where auth.userid=user.userid and auth.folder='${folder}'`
+    let sqlString = `select user.orgid AS orgid, user.nickname AS nickname, user.userid AS userid, user.userName AS username, auth.* from user, auth where auth.userid=user.userid and auth.folder='${folder}'`
     authTable.query(sqlString).then(data => {
         result.status = true
         result.data = data
