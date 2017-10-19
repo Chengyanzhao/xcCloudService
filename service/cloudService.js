@@ -3,6 +3,7 @@
  */
 const path = require('path')
 const fs = require('fs')
+const fse = require('fs-extra')
 const fsUtil = require('../bin/util/fsUtil')
 const db = require('../bin/database/db')
 const cryptUtil = require('../bin/util/cryptUtil')
@@ -36,22 +37,41 @@ function authFolder(opts, userId, done) {
         file: [],
         folder: []
     }
+    let authTable = db.table('auth')
     commonService.validAdmin(userId).then(isAdmin => {
         if (isAdmin) {
-            let fullPath = baseDirector
-            fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
-                result.status = true
-                result.data = folderTree
-                done(result)
+            return new Promise((resolve, reject) => {
+                let fullPath = baseDirector
+                fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                    result.status = true
+                    result.data = folderTree
+                    resolve(result)
+                })
             })
         } else {
-            let authTable = db.table('auth')
             return authTable.find({
                 userId
             })
         }
     }).then(data => {
-        if (data && data.length >= 0) {
+        if (data !== result && data && data.length >= 0) {
+            let deleteAuthIds = []
+            let cb = function () {
+                if (deleteAuthIds && deleteAuthIds.length) {
+                    authTable.remove({
+                        id: deleteAuthIds
+                    }).then(() => {
+                        result.status = true
+                        result.data = folderTree
+                        done(result)
+                    })
+                } else {
+                    result.status = true
+                    result.data = folderTree
+                    done(result)
+                }
+            }
+            let pending = data.length
             data.forEach(item => {
                 let authFolder = item.folder
                 let auth = {
@@ -68,17 +88,22 @@ function authFolder(opts, userId, done) {
                 let authfolderData = getFolderInfo(folderTree, baseDirector, authFolder, auth)
                 if (!authfolderData) {
                     // 授权已失效，删除数据库中此授权
-                    result.data = folderTree
-                    done(result)
+                    deleteAuthIds.push(item.id)
+                    if (!--pending) {
+                        cb()
+                    }
                 } else {
                     let fullPath = baseDirector + authFolder
                     fsUtil.walk(fullPath, authfolderData, (err, fsResult) => {
-                        result.status = true
-                        result.data = folderTree
-                        done(result)
+                        if (!--pending) {
+                            cb()
+                        }
                     })
                 }
             })
+        } else {
+            done(data)
+            return
         }
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
@@ -110,8 +135,15 @@ function getFolderInfo(folderTree, root, authFolder, auth) {
         if (i === authFolderArr.length - 1) {
             child.auth = auth
         }
-        curOperateFolder.folder.push(child)
-        curOperateFolder = child
+        let existFolder = curOperateFolder.folder.find(item => {
+            return item.name === child.name
+        })
+        if (existFolder) {
+            curOperateFolder = existFolder
+        } else {
+            curOperateFolder.folder.push(child)
+            curOperateFolder = child
+        }
     }
     // 填充文件、文件夹 curOperateFolder
     if (invalid) return false
@@ -211,6 +243,7 @@ function renameFolder(userId, opts, done) {
         oldName,
         newName
     } = opts
+    let authTable = db.table('auth')
     // 参数验证
     if (!validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
         result.message = '缺少参数！'
@@ -222,14 +255,24 @@ function renameFolder(userId, opts, done) {
                 let baseFolderPath = path.resolve(baseDirector, baseFolder)
                 let oldPath = path.resolve(baseFolderPath, oldName)
                 let newPath = path.resolve(baseFolderPath, newName)
-                if (fs.existsSync(oldPath)) {
-                    fs.renameSync(oldPath, newPath)
-                    result.status = true
-                } else {
+                if (!fs.existsSync(oldPath)) {
                     result.message = '此文件夹不存在，请刷新后重试！'
+                    done(result)
+                } else if (fs.existsSync(newPath)) {
+                    result.message = '此名称已存在，请更换！'
+                    done(result)
+                } else {
+                    fse.moveSync(oldPath, newPath)
+                    let query = { folder: `/${baseFolder}/${oldName}` }
+                    let update = { folder: `/${baseFolder}/${newName}` }
+                    authTable.update(query, update).then(() => {
+                        result.status = true
+                        done(result)
+                    }).catch(error => {
+                        result.message = '系统错误，请刷新后重试！'
+                        done(result)
+                    })
                 }
-
-                done(result)
             } else {
                 result.message = '您没有此文件夹的重命名权限！'
                 done(result)
