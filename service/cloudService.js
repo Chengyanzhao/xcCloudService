@@ -54,7 +54,7 @@ function authFolder(opts, userId, done) {
             })
         }
     }).then(data => {
-        if (data !== result && data && data.length >= 0) {
+        if (data !== result && data && data.length > 0) {
             let deleteAuthIds = []
             let cb = function () {
                 if (deleteAuthIds && deleteAuthIds.length) {
@@ -102,8 +102,9 @@ function authFolder(opts, userId, done) {
                 }
             })
         } else {
-            done(data)
-            return
+            result.status = true
+            result.data = folderTree
+            done(result)
         }
     }).catch(error => {
         result.message = error && typeof error === 'string' ? error : '系统错误！'
