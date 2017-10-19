@@ -17,7 +17,16 @@ var walk = function (dir, authfolderData, done) {
                     var childItem = {
                         name: path.basename(file)
                     }
-                    authfolderData.folder ? authfolderData.folder.push(childItem) : authfolderData.folder = [childItem]
+                    if (authfolderData.folder) {
+                        let exist = authfolderData.folder.find(item => {
+                            return item.name === childItem.name
+                        })
+                        if (!exist) {
+                            authfolderData.folder.push(childItem)
+                        }
+                    } else {
+                        authfolderData.folder = [childItem]
+                    }
                     walk(file, childItem, function (err, res) {
                         // authfolderData = authfolderData.concat(res);
                         if (!--pending) done(null, authfolderData);
