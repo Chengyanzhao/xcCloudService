@@ -15,7 +15,7 @@ router.get('/folderAuth', checkAdmin, (req, res, next) => {
 })
 // 新增授权人员
 router.post('/addUser', checkAdmin, (req, res, next) => {
-  authService.addOrUpdateAuth(req.body, results => {
+  authService.addOrUpdateAuth(req.body, result => {
     logSercice.log(req.userId, 'addOrUpdateAuth', result.status === false ? result.message : `username:${result.userName},folder:${result.folder}`)
     res.json(result);
   })
@@ -31,6 +31,7 @@ router.post('/deleteUser', checkAdmin, (req, res, next) => {
   let opts = req.body
   authService.deleteAuthUser(opts, result => {
     logSercice.log(req.userId, 'deleteAuthUser', result.status === false ? result.message : `username:${result.userName},folder:${result.folder}`)
+    res.json(result);
   })
 })
 
