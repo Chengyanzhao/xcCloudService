@@ -56,11 +56,11 @@ function authFolder(opts, userId, done) {
                 let authFolder = item.folder
                 let auth = {
                     subinherit: item.subinherit,
-                    subinherit: item.foldercreate,
+                    foldercreate: item.foldercreate,
                     folderdelete: item.folderdelete,
                     folderupload: item.folderupload,
                     folderdownload: item.folderdownload,
-                    folderename: item.folderename,
+                    folderrename: item.folderrename,
                     filedownload: item.filedownload,
                     filedelete: item.filedelete,
                     filerename: item.filerename
@@ -251,11 +251,11 @@ function downloadFolder(userId, opts, done) {
         done(result)
     }
     // 获取用户权限
-    let baseFolder = path.dirname(folder)
+    let baseFolder = folder
     commonService.getAuthInfo(userId, baseFolder).then(auth => {
         // 权限判定
         if (auth.admin || auth.downloadfolder) {
-            let folderPath = path.resolve(path.dirname(baseDirector), folder)
+            let folderPath = path.resolve(baseDirector, folder)
             let tempName = cryptUtil.guid()
             let output = path.resolve(tempDownloadDir, tempName + '.zip')
             // 压缩zip
