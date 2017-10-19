@@ -7,6 +7,7 @@ const cryptUtil = require('../bin/util/cryptUtil')
 
 // 获取目录授权
 function folderAuth(opts, done) {
+    //
     let result = {
         status: false
     }
@@ -14,9 +15,8 @@ function folderAuth(opts, done) {
         folder
     } = opts
     let authTable = db.table('auth')
-    authTable.find({
-        folder
-    }).then(data => {
+    let sqlString = `select user.userid AS userid, user.userName AS username, auth.* from user, auth where auth.userid=user.userid and auth.folder='${folder}'`
+    authTable.query(sqlString).then(data => {
         result.status = true
         result.data = data
         done(result)
