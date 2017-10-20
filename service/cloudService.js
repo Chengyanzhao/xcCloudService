@@ -137,7 +137,12 @@ function getFolderInfo(folderTree, root, authFolder, auth) {
             child.auth = auth
         }
         let existFolder = curOperateFolder.folder.find(item => {
-            return item.name === child.name
+            if (item.name === child.name) {
+                item.auth = child.auth
+                return true
+            } else {
+                return false
+            }
         })
         if (existFolder) {
             curOperateFolder = existFolder
