@@ -15,7 +15,7 @@ const validaUtil = require('../bin/util/validaUtil')
 // 根目录
 const baseDirector = config.Config.getInstance().baseFolder
 if (!fs.existsSync(baseDirector)) {
-    fsUtil.mkdirSync(baseDirector)
+    fse.ensureDirSync(baseDirector)
 }
 
 let tempDownloadDir = path.resolve(process.cwd(), 'download')
