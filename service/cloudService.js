@@ -22,7 +22,7 @@ let tempDownloadDir = path.resolve(process.cwd(), 'download')
 // 创建tempDownloadDir
 function createTempDownloadDir() {
     if (!fs.existsSync(tempDownloadDir)) {
-        fsUtil.createfolder(tempDownloadDir)
+        fsUtil.mkdirSync(tempDownloadDir)
     }
 }
 createTempDownloadDir()
