@@ -1,6 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var fs = require('fs')
+const fse = require('fs-extra')
 var path = require('path')
 var config = require('../bin/util/configUtil')
 var pool = require('../bin/connection/mysqlConn')
@@ -101,7 +102,7 @@ router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
             let filePath = req.body.folderPath
             let rootPath = `${baseDirector}/${filePath}`
             return new Promise(function (resolved, rejected) {
-                fs.rename(path.join(uploadDir, file.filename), path.join(rootPath, file.originalname), function (err) {
+                fse.moveSync(path.join(uploadDir, file.filename), path.join(rootPath, file.originalname), err => {
                     if (err) {
                         rejected(err);
                     } else {
