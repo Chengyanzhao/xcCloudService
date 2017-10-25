@@ -1,4 +1,3 @@
-const pool = require('../connection/mysqlConn')
 const dbBase = require('./dbBase')
 const Table = require('./dbTable')
 
