@@ -94,7 +94,7 @@ router.post('/attrFolder', (req, res, next) => {
 /** --------------- 文件接口 ---------------- */
 // 上传文件
 var uploadDir = path.join(path.resolve(__dirname, "../"), "upload");
-router.post('/uploadFile', upload.single('upfile'), (req, res, next) => {
+router.post('/uploadFile', upload.array('upfile'), (req, res, next) => {
     let userId = req.userId
     if (req.file) {
         var file = req.file
