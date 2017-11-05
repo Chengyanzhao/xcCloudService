@@ -42,25 +42,6 @@ var walk = function (dir, authfolderData, done) {
         });
     });
 };
-// 创建多层文件夹
-function mkdirSync(dirpath, mode) {
-    if (!fs.existsSync(dirpath)) {
-        var pathtmp;
-        dirpath.split(path.sep).forEach(function (dirname) {
-            if (pathtmp) {
-                pathtmp = path.join(pathtmp, dirname);
-            } else {
-                pathtmp = dirname;
-            }
-            if (!fs.existsSync(pathtmp)) {
-                if (!fs.mkdirSync(pathtmp, mode)) {
-                    return false;
-                }
-            }
-        });
-    }
-    return true;
-}
 // 删除文件夹
 function deleteFolder(dirPath) {
     var files = [];
@@ -185,7 +166,6 @@ function getFolderProperty(folderPath, done) {
 
 module.exports = {
     walk,
-    mkdirSync,
     deleteFolder,
     clearFolder,
     compression,
