@@ -27,6 +27,17 @@ router.get('/authFolder', function (req, res, next) {
 })
 
 /**
+ * 刷新目录(获取某一目录数据)
+ * @param {String} folder 操作目录，如'讯传网络/需求分析/新建文件夹'，参数为'需求分析/新建文件夹'
+ */
+router.post('/refreshFolder', function (req, res, next) {
+    let userId = req.userId
+    let opts = req.body
+    cloudService.refreshFolder(opts, userId, result => {
+        res.json(result)
+    })
+})
+/**
  * 创建文件夹
  * 
  * @param {String} baseFolder 当前操作目录，/讯传网络/a/b/c
@@ -96,8 +107,8 @@ router.post('/attrFolder', (req, res, next) => {
 var uploadDir = path.join(path.resolve(__dirname, "../"), "upload");
 router.post('/uploadFile', upload.array('upfile'), (req, res, next) => {
     let userId = req.userId
-    if (req.file) {
-        var file = req.file
+    if (req.files) {
+        var file = req.files[0]
         var fsPromise = function (file) {
             let filePath = req.body.folderPath
             let rootPath = `${baseDirector}/${filePath}`

@@ -22,7 +22,7 @@ let tempDownloadDir = path.resolve(process.cwd(), 'download')
 // 创建tempDownloadDir
 function createTempDownloadDir() {
     if (!fs.existsSync(tempDownloadDir)) {
-        fsUtil.mkdirSync(tempDownloadDir)
+        fse.ensureDirSync(tempDownloadDir)
     }
 }
 createTempDownloadDir()
@@ -113,6 +113,95 @@ function authFolder(opts, userId, done) {
 
 }
 
+// 获取某一目录fs
+function refreshFolder(opts, userId, done) {
+    let result = {
+        status: false
+    }
+    let {
+        folder
+    } = opts
+    let realFolder = path.resolve(baseDirector, folder)
+    let folderTree = {
+        name: path.basename(folder),
+        file: [],
+        folder: []
+    }
+    let authTable = db.table('auth')
+    commonService.validAdmin(userId).then(isAdmin => {
+        if (isAdmin) {
+            return new Promise((resolve, reject) => {
+                let fullPath = realFolder
+                fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                    result.status = true
+                    result.data = folderTree
+                    resolve(result)
+                })
+            })
+        } else {
+            return authTable.find({
+                userId
+            })
+        }
+    }).then(data => {
+        if (data !== result && data && data.length > 0) {
+            let deleteAuthIds = []
+            let cb = function () {
+                if (deleteAuthIds && deleteAuthIds.length) {
+                    authTable.remove({
+                        id: deleteAuthIds
+                    }).then(() => {
+                        result.status = true
+                        result.data = folderTree
+                        done(result)
+                    })
+                } else {
+                    result.status = true
+                    result.data = folderTree
+                    done(result)
+                }
+            }
+            let pending = data.length
+            data.forEach(item => {
+                let authFolder = item.folder
+                let auth = {
+                    subinherit: item.subinherit,
+                    foldercreate: item.foldercreate,
+                    folderdelete: item.folderdelete,
+                    folderupload: item.folderupload,
+                    folderdownload: item.folderdownload,
+                    folderrename: item.folderrename,
+                    filedownload: item.filedownload,
+                    filedelete: item.filedelete,
+                    filerename: item.filerename
+                }
+                let authfolderData = getFolderInfo(folderTree, baseDirector, authFolder, auth)
+                if (!authfolderData) {
+                    // 授权已失效，删除数据库中此授权
+                    deleteAuthIds.push(item.id)
+                    if (!--pending) {
+                        cb()
+                    }
+                } else {
+                    let fullPath = baseDirector + authFolder
+                    fsUtil.walk(fullPath, authfolderData, (err, fsResult) => {
+                        if (!--pending) {
+                            cb()
+                        }
+                    })
+                }
+            })
+        } else {
+            result.status = true
+            result.data = folderTree
+            done(result)
+        }
+    }).catch(error => {
+        result.message = error && typeof error === 'string' ? error : '系统错误！'
+        done(result)
+    })
+}
+
 function getFolderInfo(folderTree, root, authFolder, auth) {
     let authFolderArr = authFolder.split('/').filter(item => {
         return !!item
@@ -191,16 +280,9 @@ function createFolder(userId, opts, done) {
                 folderPath = path.resolve(baseFolderPath, name)
                 index++
             }
-            fs.mkdirSync(folderPath);
+            fse.ensureDirSync(folderPath)
             result.status = true
             result.newName = name
-            // if (!fs.existsSync(folderPath)) {
-            //     fs.mkdirSync(folderPath);
-            //     // 实体目录创建文件夹
-            //     result.status = true
-            // } else {
-            //     result.message = '此文件夹已存在！'
-            // }
             done(result)
         } else {
             result.message = '您没有此目录下的创建目录权限！'
@@ -500,6 +582,7 @@ function attrFile(opts, done) {
 }
 module.exports = {
     authFolder,
+    refreshFolder,
     createFolder,
     deleteFolder,
     renameFolder,
