@@ -29,7 +29,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(history({
   verbose: true,
-  index: '/'
+  index: '/',
+  rewrites: [{
+    from: /\/cloud\/downloadFile/,
+    to: '/cloud/downloadFile'
+  },
+  {
+    from: /\/cloud\/downloadFolder/,
+    to: '/cloud/downloadFolder'
+  }
+  ]
 }));
 app.use('/', index);
 app.use('/users', users);
