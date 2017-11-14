@@ -2,7 +2,18 @@ var fs = require('fs')
 var path = require('path')
 var archiver = require('archiver');
 
-var walk = function (dir, authfolderData, done) {
+var _sortType = {
+    name_order: 1,
+    name_reverseOrder: 2,
+    size_order: 3,
+    size_reverseOrder: 4,
+    type_order: 5,
+    type_reverseOrder: 6,
+    time_order: 7,
+    time_reverseOrder: 8
+
+}
+var walk = function (dir, authfolderData, sortType, done) {
     fs.readdir(dir, function (err, list) {
         if (err) return done(err);
         // authfolderData.name = path.basename(authfolderData.name) || path.basename(dir)
@@ -15,7 +26,10 @@ var walk = function (dir, authfolderData, done) {
             fs.stat(file, function (err, stat) {
                 if (stat && stat.isDirectory()) {
                     var childItem = {
-                        name: path.basename(file)
+                        name: path.basename(file),
+                        _sortProperty: {
+                            time: stat.mtimeMs
+                        }
                     }
                     if (authfolderData.folder) {
                         let exist = authfolderData.folder.find(item => {
@@ -27,21 +41,87 @@ var walk = function (dir, authfolderData, done) {
                     } else {
                         authfolderData.folder = [childItem]
                     }
-                    walk(file, childItem, function (err, res) {
+                    walk(file, childItem, sortType, function (err, res) {
                         // authfolderData = authfolderData.concat(res);
-                        if (!--pending) done(null, authfolderData);
+                        if (!--pending) {
+                            fsSort(authfolderData, sortType);
+                            done(null, authfolderData);
+                        }
                     });
                 } else {
                     let fileName = path.basename(file)
-                    authfolderData.file ? authfolderData.file.push(fileName) : authfolderData.file = [fileName]
+                    let extName = path.extname(file)
+                    let fileObj = {
+                        fileName,
+                        _sortProperty: {
+                            size: stat.size,
+                            time: stat.mtimeMs,
+                            type: extName ? extName.charCodeAt(0) : '0'
+                        }
+                    }
+                    // authfolderData.file ? authfolderData.file.push(fileName) : authfolderData.file = [fileName]
+                    authfolderData.file ? authfolderData.file.push(fileObj) : authfolderData.file = [fileObj]
                     authfolderData.file.sort()
                     // authfolderData.push(file);
-                    if (!--pending) done(null, authfolderData);
+                    if (!--pending) {
+                        fsSort(authfolderData, sortType);
+                        done(null, authfolderData);
+                    }
                 }
             });
         });
+
+
     });
 };
+function fsSort(authfolderData, sortType) {
+    // 文件夹
+    if (authfolderData.folder && authfolderData.folder.length) {
+        authfolderData.folder.sort((a, b) => {
+            if (sortType === _sortType.name_order || sortType === _sortType.size_order || _sortType.type_order) {
+                return (a.name.charCodeAt(0) - b.name.charCodeAt(0))
+            } else if (sortType === _sortType.name_reverseOrder || sortType === _sortType.size_reverseOrder || _sortType.type_reverseOrder) {
+                return (b.name.charCodeAt(0) - a.name.charCodeAt(0))
+            } else if (sortType === _sortType.time_order) {
+                return a._sortProperty.time - b._sortProperty.time
+            } else if (sortType === _sortType.time_reverseOrder) {
+                return b._sortProperty.time - a._sortProperty.time
+            } else {
+                return 0
+            }
+        })
+        // 拆解_sortProperty
+        authfolderData.folder.forEach(item => {
+            delete item._sortProperty
+        })
+    }
+    // 文件
+    if (authfolderData.file && authfolderData.file.length) {
+        authfolderData.file.sort((a, b) => {
+            if (sortType === _sortType.name_order) {
+                return (a.charCodeAt(0))
+            } else if (sortType === _sortType.size_order) {
+                return a._sortProperty.size - b._sortProperty.size
+            } else if (sortType === _sortType.size_reverseOrder) {
+                return b._sortProperty.size - a._sortProperty.size
+            } else if (sortType === _sortType.time_order) {
+                return a._sortProperty.time - b._sortProperty.time
+            } else if (sortType === _sortType.time_reverseOrder) {
+                return b._sortProperty.time - a._sortProperty.time
+            } else if (sortType === _sortType.type_order) {
+                return a._sortProperty.type - b._sortProperty.type
+            } else if (sortType === _sortType.type_reverseOrder) {
+                return b._sortProperty.type - a._sortProperty.type
+            } else {
+                return 0
+            }
+        })
+        // 拆解_sortProperty
+        authfolderData.file = authfolderData.file.map(item => {
+            return item.fileName
+        });
+    }
+}
 // 删除文件夹
 function deleteFolder(dirPath) {
     var files = [];

@@ -32,6 +32,7 @@ function authFolder(opts, userId, done) {
     let result = {
         status: false
     }
+    let { sortType = 0 } = opts
     let folderTree = {
         name: path.basename(baseDirector),
         file: [],
@@ -42,7 +43,7 @@ function authFolder(opts, userId, done) {
         if (isAdmin) {
             return new Promise((resolve, reject) => {
                 let fullPath = baseDirector
-                fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                fsUtil.walk(fullPath, folderTree, sortType, (err, fsResult) => {
                     result.status = true
                     result.data = folderTree
                     resolve(result)
@@ -94,7 +95,7 @@ function authFolder(opts, userId, done) {
                     }
                 } else {
                     let fullPath = baseDirector + authFolder
-                    fsUtil.walk(fullPath, authfolderData, (err, fsResult) => {
+                    fsUtil.walk(fullPath, authfolderData, sortType, (err, fsResult) => {
                         if (!--pending) {
                             cb()
                         }
@@ -119,7 +120,8 @@ function refreshFolder(opts, userId, done) {
         status: false
     }
     let {
-        folder
+        folder,
+        sortType = 0
     } = opts
     let realFolder = path.resolve(baseDirector, folder)
     let folderTree = {
@@ -132,7 +134,7 @@ function refreshFolder(opts, userId, done) {
         if (isAdmin) {
             return new Promise((resolve, reject) => {
                 let fullPath = realFolder
-                fsUtil.walk(fullPath, folderTree, (err, fsResult) => {
+                fsUtil.walk(fullPath, folderTree, sortType, (err, fsResult) => {
                     result.status = true
                     result.data = folderTree
                     resolve(result)
@@ -184,7 +186,7 @@ function refreshFolder(opts, userId, done) {
                     }
                 } else {
                     let fullPath = baseDirector + authFolder
-                    fsUtil.walk(fullPath, authfolderData, (err, fsResult) => {
+                    fsUtil.walk(fullPath, authfolderData, sortType, (err, fsResult) => {
                         if (!--pending) {
                             cb()
                         }
