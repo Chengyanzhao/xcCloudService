@@ -2,7 +2,6 @@
  * auth service 
  */
 const db = require('../bin/database/db')
-const poolQuery = require('../bin/util/promise-mysql')
 const cryptUtil = require('../bin/util/cryptUtil')
 
 // 获取目录授权

@@ -61,6 +61,7 @@ function signUp(userId, opts, done) {
             return Promise.reject('此用户名已被占用！');
         }
     }).then(() => {
+        console.log('add user')
         return userTable.add({
             userid: newUserId,
             username: userName,

@@ -1,5 +1,7 @@
-const pool = require('../connection/mysqlConn')
 const dbBase = require('./dbBase')
+const config = require('../util/configUtil')
+const DATABASE_ENV = config.Config.getInstance().dataBase // mysql/sqlite
+const isMysql = DATABASE_ENV === 'mysql'
 
 function Table(tableName) {
     if (!tableName || typeof tableName !== 'string' || !tableName.trim())
@@ -9,19 +11,46 @@ function Table(tableName) {
 const proto = Table.prototype
 
 proto.add = function (data) {
-    let insert = data ? 'SET' : ''
-    if (data) {
-        for (let key in data) {
-            let value = data[key]
-            if (value) {
-                let set = ` ${key}='${value}',`
-                insert += set
+    let sqlStr = ''
+    if (isMysql) {
+        let insert = data ? 'SET' : ''
+        if (data) {
+            for (let key in data) {
+                let value = data[key]
+                if (value) {
+                    let set = ` ${key}='${value}',`
+                    insert += set
+                }
+            }
+            if (insert.lastIndexOf(',') === insert.length - 1) insert = insert.substr(0, insert.length - 1)
+        }
+        sqlStr = `INSERT INTO ${this.tableName} ${insert}`
+    } else {
+        let keys = ''
+        let values = ''
+        if (data) {
+            for (let key in data) {
+                let value = data[key]
+                if (value) {
+                    if (keys) {
+                        keys += ','
+                    }
+                    keys += key
+                    if (values) {
+                        values += ','
+                    }
+                    if (value instanceof Date) {
+                        values += `'${value.toString()}'`
+                    } else if (typeof value === 'string') {
+                        values += `'${value}'`
+                    } else {
+                        values += value
+                    }
+                }
             }
         }
-        if (insert.lastIndexOf(',') === insert.length - 1) insert = insert.substr(0, insert.length - 1)
+        sqlStr = `INSERT INTO ${this.tableName} (${keys}) VALUES(${values})`
     }
-
-    let sqlStr = `INSERT INTO ${this.tableName} ${insert}`
     return dbBase.execute(sqlStr)
 }
 
