@@ -31,7 +31,7 @@ proto.add = function (data) {
         if (data) {
             for (let key in data) {
                 let value = data[key]
-                if (value) {
+                if (value || value === 0) {
                     if (keys) {
                         keys += ','
                     }
@@ -79,7 +79,7 @@ proto.like = function (query) {
     if (query) {
         for (let key in query) {
             let value = query[key]
-            let condition = ` ${key} like '%${value}%%'`
+            let condition = ` ${key} like '%${value}%'`
             whereArr.push(condition)
         }
     }
