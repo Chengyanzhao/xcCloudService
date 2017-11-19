@@ -71,7 +71,8 @@ function signUp(userId, opts, done) {
             sex: sex,
             email: email,
             mobilephone: mobilePhone,
-            telephone: telePhone
+            telephone: telePhone,
+            admin: 0
         })
     }).then(data => {
         result.status = true
