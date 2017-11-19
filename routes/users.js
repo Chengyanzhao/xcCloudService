@@ -80,7 +80,7 @@ router.get('/getUserByOpts', checkAdmin, function (req, res, next) {
   })
 })
 // 更新用户信息
-router.post('/updateUser', checkAdmin, function (req, res, next) {
+router.post('/updateUser', function (req, res, next) {
   let userId = req.userId
   let opts = req.body
   userService.updateUser(opts, result => {
