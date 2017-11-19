@@ -7,7 +7,7 @@ const token = require('../bin/middleware/token')
 router.use(token);
 
 // 获取组织机构
-router.get('/getOrgs', checkAdmin, function (req, res, next) {
+router.get('/getOrgs', function (req, res, next) {
   let opts = req.query
   orgService.getOrgs(opts, result => {
     res.json(result)
