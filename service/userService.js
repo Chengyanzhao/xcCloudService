@@ -116,11 +116,12 @@ function signIn(opts, done) {
     })
 }
 // 更新用户信息
-function updateUser(userId, opts, done) {
+function updateUser(opts, done) {
     let result = {
         status: false
     }
     let {
+        userId,
         userName,
         passWord,
         nickName,

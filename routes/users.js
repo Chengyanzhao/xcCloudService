@@ -83,7 +83,7 @@ router.get('/getUserByOpts', checkAdmin, function (req, res, next) {
 router.post('/updateUser', checkAdmin, function (req, res, next) {
   let userId = req.userId
   let opts = req.body
-  userService.updateUser(userId, opts, result => {
+  userService.updateUser(opts, result => {
     logSercice.log(userId, 'updateUserInfo', result.status === false ? result.message : '')
     res.json(result)
   })
