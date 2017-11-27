@@ -1,5 +1,5 @@
 /**
- * cloud service 
+ * cloud service
  */
 const path = require('path')
 const fs = require('fs')
@@ -390,11 +390,11 @@ function downloadFolder(userId, opts, done) {
     status: false
   }
   let { folder } = opts
-  // 参数验证
-  if (!validaUtil.vString(folder)) {
-    result.message = '缺少参数！'
-    done(result)
-  }
+  // // 参数验证
+  // if (!validaUtil.vString(folder)) {
+  //   result.message = '缺少参数！'
+  //   done(result)
+  // }
   // 获取用户权限
   let baseFolder = folder
   commonService
@@ -403,6 +403,10 @@ function downloadFolder(userId, opts, done) {
       // 权限判定
       if (auth.admin || auth.downloadfolder) {
         let folderPath = path.resolve(baseDirector, folder)
+        if (!folder) {
+          let pathArr = baseDirector.split('/')
+          folder = pathArr[pathArr.length - 1]
+        }
         let tempName = cryptUtil.guid()
         let output = path.resolve(tempDownloadDir, tempName + '.zip')
         // 压缩zip
@@ -422,7 +426,8 @@ function downloadFolder(userId, opts, done) {
         }
         done(result)
       } else {
-        result.message = compressRes.message || compressRes || '系统错误，请刷新后重试！'
+        result.message =
+          compressRes.message || compressRes || '系统错误，请刷新后重试！'
         done(result)
       }
     })
@@ -436,8 +441,8 @@ function downloadFolder(userId, opts, done) {
  * */
 function attrFolder(opts, done) {
   /**
-     *  文件夹占用空间、文件夹个数、文件个数
-     */
+   *  文件夹占用空间、文件夹个数、文件个数
+   */
   let result = {
     status: false
   }
@@ -531,11 +536,11 @@ function deleteFile(userId, opts, done) {
     status: false
   }
   let { baseFolder, delFileNames } = opts
-  // 参数验证
-  if (!validaUtil.vString(baseFolder)) {
-    result.message = '缺少参数！'
-    done(result)
-  }
+  // // 参数验证
+  // if (!validaUtil.vString(baseFolder)) {
+  //   result.message = '缺少参数！'
+  //   done(result)
+  // }
   delFileNames = delFileNames.split('*')
   // 获取用户权限
   commonService.getAuthInfo(userId, baseFolder).then(auth => {
