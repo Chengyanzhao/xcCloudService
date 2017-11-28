@@ -275,7 +275,7 @@ function createFolder(userId, opts, done) {
   }
   let { baseFolder, newFolder } = opts
   // 参数验证
-  if (!validaUtil.vString(baseFolder) || !validaUtil.vString(newFolder)) {
+  if (!validaUtil.vString(newFolder)) {
     result.message = '缺少参数！'
     done(result)
   } else if (!validaUtil.vFolderName(newFolder)) {
