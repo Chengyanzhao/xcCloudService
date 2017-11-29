@@ -105,25 +105,38 @@ router.post('/attrFolder', (req, res, next) => {
 // 上传文件
 var uploadDir = path.join(path.resolve(__dirname, "../"), "upload");
 router.post('/uploadFile', upload.array('upfile'), (req, res, next) => {
-    let userId = req.userId
-    if (req.files) {
-        var file = req.files[0]
-        var fsPromise = function (file) {
+    let result = {
+        status: false
+    }
+    try {
+        let userId = req.userId
+        if (req.files) {
+            var file = req.files[0]
             let filePath = req.body.folderPath
             let rootPath = `${baseDirector}/${filePath}`
-            return new Promise(function (resolved, rejected) {
-                fse.moveSync(path.join(uploadDir, file.filename), path.join(rootPath, file.originalname), err => {
+            let sourPath = path.join(uploadDir, file.filename)
+            let tarPath = path.join(rootPath, file.originalname)
+            if (fs.existsSync(tarPath)) {
+                result.message = '此文件已存在！'
+                if (fs.existsSync(sourPath)) {
+                    fs.unlinkSync(sourPath)
+                }
+            } else {
+                fse.moveSync(sourPath, tarPath, err => {
                     if (err) {
-                        rejected(err);
+                        result.message = '上传出错，请刷新后重试！'
                     } else {
-                        resolved();
+                        result.status = true
                     }
                 });
-            });
+            }
+        } else {
+            result.message = '上传出错，请刷新后重试！'
         }
-        fsPromise(file)
+    } catch (e) {
+        result.message = '上传出错，请刷新后重试！'
     }
-    res.send()
+    res.json(result)
 })
 // 下载文件
 router.get('/downloadFile', (req, res, next) => {
