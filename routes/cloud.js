@@ -106,10 +106,8 @@ router.post('/attrFolder', (req, res, next) => {
 var uploadDir = path.join(path.resolve(__dirname, '../'), 'upload')
 router.post('/uploadFile', upload.array('upfile'), (req, res, next) => {
     let result = {
-        status: true,
-        isOverwrite: false
+        status: true
     }
-    let opts = req.body
     try {
         let userId = req.userId
         if (req.files) {
@@ -119,15 +117,14 @@ router.post('/uploadFile', upload.array('upfile'), (req, res, next) => {
             let sourPath = path.join(uploadDir, file.filename)
             let tarPath = path.join(rootPath, file.originalname)
             let isExist = fs.existsSync(tarPath)
-            result.isOverwrite = isExist
-            if (isExist && opts.overwrite === "false") {
+            if (isExist) {
                 result.status = false
                 result.message = '此文件已存在！'
                 if (fs.existsSync(sourPath)) {
                     fs.unlinkSync(sourPath)
                 }
             } else {
-                fse.moveSync(sourPath, tarPath, { overwrite: opts.overwrite === 'true' })
+                fse.moveSync(sourPath, tarPath)
             }
         } else {
             result.status = false
