@@ -32,7 +32,9 @@ function authFolder(opts, userId, done) {
   let result = {
     status: false
   }
-  let { sortType = 1 } = opts
+  let {
+    sortType = 1
+  } = opts
   if (typeof sortType === 'string') {
     sortType = +sortType
   }
@@ -63,7 +65,7 @@ function authFolder(opts, userId, done) {
     .then(data => {
       if (data !== result && data && data.length > 0) {
         let deleteAuthIds = []
-        let cb = function() {
+        let cb = function () {
           if (deleteAuthIds && deleteAuthIds.length) {
             authTable
               .remove({
@@ -132,7 +134,10 @@ function refreshFolder(opts, userId, done) {
   let result = {
     status: false
   }
-  let { folder, sortType = 0 } = opts
+  let {
+    folder,
+    sortType = 0
+  } = opts
   let realFolder = path.resolve(baseDirector, folder)
   let folderTree = {
     name: path.basename(folder),
@@ -161,7 +166,7 @@ function refreshFolder(opts, userId, done) {
     .then(data => {
       if (data !== result && data && data.length > 0) {
         let deleteAuthIds = []
-        let cb = function() {
+        let cb = function () {
           if (deleteAuthIds && deleteAuthIds.length) {
             authTable
               .remove({
@@ -273,7 +278,10 @@ function createFolder(userId, opts, done) {
   let result = {
     status: false
   }
-  let { baseFolder, newFolder } = opts
+  let {
+    baseFolder,
+    newFolder
+  } = opts
   // 参数验证
   if (!validaUtil.vString(newFolder)) {
     result.message = '缺少参数！'
@@ -315,7 +323,10 @@ function deleteFolder(userId, opts, done) {
   let result = {
     status: false
   }
-  let { baseFolder, delFolder } = opts
+  let {
+    baseFolder,
+    delFolder
+  } = opts
   // 参数验证 TODO  yangchanlgu 去掉!validaUtil.vString(baseFolder) 不需要判断根目录是否为空
   if (!validaUtil.vString(delFolder)) {
     result.message = '缺少参数！'
@@ -343,7 +354,11 @@ function renameFolder(userId, opts, done) {
   let result = {
     status: false
   }
-  let { baseFolder, oldName, newName } = opts
+  let {
+    baseFolder,
+    oldName,
+    newName
+  } = opts
   let authTable = db.table('auth')
   // 参数验证
   if (!validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
@@ -364,8 +379,12 @@ function renameFolder(userId, opts, done) {
           done(result)
         } else {
           fse.moveSync(oldPath, newPath)
-          let query = { folder: `/${baseFolder}/${oldName}` }
-          let update = { folder: `/${baseFolder}/${newName}` }
+          let query = {
+            folder: `/${baseFolder}/${oldName}`
+          }
+          let update = {
+            folder: `/${baseFolder}/${newName}`
+          }
           authTable
             .update(query, update)
             .then(() => {
@@ -389,7 +408,9 @@ function downloadFolder(userId, opts, done) {
   let result = {
     status: false
   }
-  let { folder } = opts
+  let {
+    folder
+  } = opts
   // // 参数验证
   // if (!validaUtil.vString(folder)) {
   //   result.message = '缺少参数！'
@@ -446,7 +467,9 @@ function attrFolder(opts, done) {
   let result = {
     status: false
   }
-  let { folderPath } = opts
+  let {
+    folderPath
+  } = opts
   // 参数验证
   if (!validaUtil.vString(folderPath)) {
     result.message = '缺少参数！'
@@ -504,7 +527,11 @@ function renameFile(userId, opts, done) {
   let result = {
     status: false
   }
-  let { baseFolder, oldName, newName } = opts
+  let {
+    baseFolder,
+    oldName,
+    newName
+  } = opts
   // 参数验证
   if (!validaUtil.vString(oldName) || !validaUtil.vString(newName)) {
     result.message = '缺少参数！'
@@ -517,8 +544,12 @@ function renameFile(userId, opts, done) {
         let oldPath = path.resolve(baseFolderPath, oldName)
         let newPath = path.resolve(baseFolderPath, newName)
         if (fs.existsSync(oldPath)) {
-          fs.renameSync(oldPath, newPath)
-          result.status = true
+          if (fs.existsSync(newPath)) {
+            result.message = '此文件名已存在，请确认！'
+          } else {
+            fs.renameSync(oldPath, newPath)
+            result.status = true
+          }
         } else {
           result.message = '此文件不存在，请刷新后重试！'
         }
@@ -535,7 +566,10 @@ function deleteFile(userId, opts, done) {
   let result = {
     status: false
   }
-  let { baseFolder, delFileNames } = opts
+  let {
+    baseFolder,
+    delFileNames
+  } = opts
   // // 参数验证
   // if (!validaUtil.vString(baseFolder)) {
   //   result.message = '缺少参数！'
@@ -565,7 +599,9 @@ function attrFile(opts, done) {
   let result = {
     status: false
   }
-  let { filePath } = opts
+  let {
+    filePath
+  } = opts
   // 参数验证
   if (!validaUtil.vString(filePath)) {
     result.message = '缺少参数！'
